@@ -53,6 +53,7 @@
         "gather_all_windows",
         "restore_all_minimized",
         "move_left_half",
-        "move_right_half"
+        "move_right_half",
+        "minimize_all"
     ]
 }
