@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv/
+.idea/
+.vscode/
+
+# Ignore config to not leak local paths or settings if they vary, although here it looks like config.json is generated, let's keep it unless it contains secrets.
+# config.json

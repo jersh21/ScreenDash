@@ -1,0 +1,420 @@
+import ctypes
+import keyboard
+import time
+import sys
+import os
+import threading
+import subprocess
+import pystray
+from PIL import Image, ImageDraw
+from ctypes import wintypes
+from pynput import mouse
+import config_manager
+
+user32 = ctypes.windll.user32
+
+# Constants for window manipulation
+SW_MAXIMIZE = 3
+SW_MINIMIZE = 6
+SW_RESTORE = 9
+WM_CLOSE = 0x0010
+
+GWL_STYLE = -16
+WS_MAXIMIZE_STYLE = 0x01000000
+
+# GetAncestor constant
+GA_ROOT = 2
+
+# Monitor info constants
+MONITOR_DEFAULTTONEAREST = 2
+
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
+
+class RECT(ctypes.Structure):
+    _fields_ = [
+        ('left', wintypes.LONG),
+        ('top', wintypes.LONG),
+        ('right', wintypes.LONG),
+        ('bottom', wintypes.LONG)
+    ]
+
+class MONITORINFO(ctypes.Structure):
+    _fields_ = [
+        ('cbSize', wintypes.DWORD),
+        ('rcMonitor', RECT),
+        ('rcWork', RECT),
+        ('dwFlags', wintypes.DWORD)
+    ]
+
+MonitorEnumProc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HMONITOR, wintypes.HDC, ctypes.POINTER(RECT), wintypes.LPARAM)
+
+def get_window_class(hwnd):
+    buf = ctypes.create_unicode_buffer(256)
+    user32.GetClassNameW(hwnd, buf, 256)
+    return buf.value
+
+def get_window_title_internal(hwnd):
+    length = user32.GetWindowTextLengthW(hwnd)
+    if length == 0: return ""
+    buf = ctypes.create_unicode_buffer(length + 1)
+    user32.GetWindowTextW(hwnd, buf, length + 1)
+    return buf.value
+
+def get_window_under_cursor():
+    pt = POINT()
+    user32.GetCursorPos(ctypes.byref(pt))
+    hwnd = user32.WindowFromPoint(pt)
+    if hwnd:
+        root_hwnd = user32.GetAncestor(hwnd, GA_ROOT)
+        target = root_hwnd if root_hwnd else hwnd
+        
+        # Protect critical Windows OS elements
+        cls = get_window_class(target)
+        if cls in ["Shell_TrayWnd", "NotifyIconOverflowWindow", "Progman", "WorkerW"]:
+            return 0
+        if get_window_title_internal(target) == "Program Manager":
+            return 0
+            
+        return target
+    return 0
+
+def _move_window(position):
+    hwnd = get_window_under_cursor()
+    if not hwnd:
+        return
+    
+    style = user32.GetWindowLongW(hwnd, GWL_STYLE)
+    if style & WS_MAXIMIZE_STYLE:
+        user32.ShowWindow(hwnd, SW_RESTORE)
+        time.sleep(0.05)
+
+    hmon = user32.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
+    if not hmon:
+        return
+        
+    monitor_info = MONITORINFO()
+    monitor_info.cbSize = ctypes.sizeof(MONITORINFO)
+    user32.GetMonitorInfoW(hmon, ctypes.byref(monitor_info))
+    
+    work_area = monitor_info.rcWork
+    
+    if position == "right_top":
+        rect = RECT()
+        user32.GetWindowRect(hwnd, ctypes.byref(rect))
+        width = rect.right - rect.left
+        height = rect.bottom - rect.top
+        new_x = work_area.right - width
+        new_y = work_area.top
+        # SWP_NOSIZE = 0x0001, SWP_NOZORDER = 0x0004 => 0x0005
+        user32.SetWindowPos(hwnd, 0, new_x, new_y, 0, 0, 0x0005)
+    
+    elif position == "left_half":
+        width = (work_area.right - work_area.left) // 2
+        height = work_area.bottom - work_area.top
+        new_x = work_area.left
+        new_y = work_area.top
+        # SWP_NOZORDER = 0x0004
+        user32.SetWindowPos(hwnd, 0, new_x, new_y, width, height, 0x0004)
+        
+    elif position == "right_half":
+        width = (work_area.right - work_area.left) // 2
+        height = work_area.bottom - work_area.top
+        new_x = work_area.left + width
+        new_y = work_area.top
+        # SWP_NOZORDER = 0x0004
+        user32.SetWindowPos(hwnd, 0, new_x, new_y, width, height, 0x0004)
+
+def move_window_to_next_monitor():
+    hwnd = get_window_under_cursor()
+    if not hwnd:
+        return
+        
+    style = user32.GetWindowLongW(hwnd, GWL_STYLE)
+    was_maximized = bool(style & WS_MAXIMIZE_STYLE)
+    
+    if was_maximized:
+        user32.ShowWindow(hwnd, SW_RESTORE)
+        time.sleep(0.05)
+        
+    hmon_current = user32.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
+    if not hmon_current:
+        return
+
+    monitors = []
+    def callback(hMonitor, hdcMonitor, lprcMonitor, dwData):
+        monitors.append(hMonitor)
+        return True
+    
+    cb = MonitorEnumProc(callback)
+    user32.EnumDisplayMonitors(None, None, cb, 0)
+    
+    if len(monitors) <= 1:
+        return
+        
+    try:
+        idx = monitors.index(hmon_current)
+    except ValueError:
+        idx = 0
+    next_hmon = monitors[(idx + 1) % len(monitors)]
+    
+    current_info = MONITORINFO()
+    current_info.cbSize = ctypes.sizeof(MONITORINFO)
+    user32.GetMonitorInfoW(hmon_current, ctypes.byref(current_info))
+    
+    next_info = MONITORINFO()
+    next_info.cbSize = ctypes.sizeof(MONITORINFO)
+    user32.GetMonitorInfoW(next_hmon, ctypes.byref(next_info))
+    
+    rect = RECT()
+    user32.GetWindowRect(hwnd, ctypes.byref(rect))
+    width = rect.right - rect.left
+    height = rect.bottom - rect.top
+    
+    # Calculate offset on current screen
+    x_offset = rect.left - current_info.rcWork.left
+    y_offset = rect.top - current_info.rcWork.top
+    
+    # Prevent exceeding next monitor's workspace
+    nw = next_info.rcWork.right - next_info.rcWork.left
+    nh = next_info.rcWork.bottom - next_info.rcWork.top
+    width = min(width, nw)
+    height = min(height, nh)
+    
+    new_x = next_info.rcWork.left + min(x_offset, nw - width)
+    new_y = next_info.rcWork.top + min(max(0, y_offset), nh - height)
+    
+    # SWP_NOZORDER = 0x0004
+    user32.SetWindowPos(hwnd, 0, new_x, new_y, width, height, 0x0004)
+    
+    if was_maximized:
+        user32.ShowWindow(hwnd, SW_MAXIMIZE)
+
+def move_window_top_right():
+    _move_window("right_top")
+
+def minimize_window():
+    hwnd = get_window_under_cursor()
+    if hwnd:
+        user32.ShowWindow(hwnd, SW_MINIMIZE)
+
+def maximize_window():
+    hwnd = get_window_under_cursor()
+    if hwnd:
+        user32.ShowWindow(hwnd, SW_MAXIMIZE)
+
+def close_window():
+    hwnd = get_window_under_cursor()
+    if hwnd:
+        user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+
+def restore_all_minimized():
+    def callback(hwnd, ctx):
+        if user32.IsIconic(hwnd) and user32.IsWindowVisible(hwnd):
+            user32.ShowWindow(hwnd, SW_RESTORE)
+        return True
+    
+    cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
+    user32.EnumWindows(cb, 0)
+
+def get_window_title(hwnd):
+    length = user32.GetWindowTextLengthW(hwnd)
+    if length == 0: return ""
+    buf = ctypes.create_unicode_buffer(length + 1)
+    user32.GetWindowTextW(hwnd, buf, length + 1)
+    return buf.value
+
+def is_main_window(hwnd):
+    if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
+        return False
+    title = get_window_title(hwnd)
+    if not title or title in ["Program Manager", "Settings"]:
+        return False
+    # Exclude dialogs/popups owned by an existing main window
+    if user32.GetWindow(hwnd, 4) != 0: 
+        return False
+    return True
+
+def gather_all_windows():
+    pt = POINT()
+    user32.GetCursorPos(ctypes.byref(pt))
+    hmon = user32.MonitorFromPoint(pt, 2)
+    if not hmon: return
+        
+    monitor_info = MONITORINFO()
+    monitor_info.cbSize = ctypes.sizeof(MONITORINFO)
+    user32.GetMonitorInfoW(hmon, ctypes.byref(monitor_info))
+    
+    work_area = monitor_info.rcWork
+    target_x = work_area.left + 50
+    target_y = work_area.top + 50
+    offset = 0
+    
+    def callback(hwnd, ctx):
+        nonlocal offset
+        if is_main_window(hwnd):
+            # SWP_NOSIZE | SWP_NOZORDER = 0x0005
+            user32.SetWindowPos(hwnd, 0, target_x + offset, target_y + offset, 0, 0, 0x0005)
+            offset = (offset + 40) % 400
+        return True
+    
+    cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
+    user32.EnumWindows(cb, 0)
+
+tray_icon = None
+listener = None
+G_CONFIG = config_manager.load_config()
+LOCK_FILE = "recording.lock"
+
+def quit_app(icon=None, item=None):
+    global listener, tray_icon
+    if listener:
+        listener.stop()
+    if tray_icon:
+        tray_icon.stop()
+    os._exit(0)
+
+# Mouse listener handling
+def get_modifiers():
+    mods = []
+    for m in ['ctrl', 'alt', 'shift', 'windows']:
+        if keyboard.is_pressed(m):
+            mods.append(m)
+    return mods
+
+def exec_action(action_name):
+    if os.path.exists(LOCK_FILE):
+        return
+    if not G_CONFIG.get("master_enable", True):
+        return
+    if not G_CONFIG.get("enabled", {}).get(action_name, True):
+        return
+    
+    mapping = {
+        "move_top_right": move_window_top_right,
+        "alt_top_right": move_window_top_right,
+        "move_to_next_monitor": move_window_to_next_monitor,
+        "alt_next_monitor": move_window_to_next_monitor,
+        "minimize_window": minimize_window,
+        "alt_minimize": minimize_window,
+        "maximize_window": maximize_window,
+        "alt_maximize": maximize_window,
+        "close_window": close_window,
+        "alt_close": close_window,
+        "restore_all_minimized": restore_all_minimized,
+        "alt_restore": restore_all_minimized,
+        "move_left_half": lambda: _move_window("left_half"),
+        "alt_move_left": lambda: _move_window("left_half"),
+        "move_right_half": lambda: _move_window("right_half"),
+        "alt_move_right": lambda: _move_window("right_half"),
+        "gather_all_windows": gather_all_windows,
+        "alt_gather_windows": gather_all_windows
+    }
+    if action_name in mapping:
+        mapping[action_name]()
+
+def check_mouse_hotkey(hotkey_str):
+    for act, hk in G_CONFIG.get("hotkeys", {}).items():
+        if hk == hotkey_str:
+            exec_action(act)
+            return True
+    return False
+
+def on_scroll(x, y, dx, dy):
+    mods = get_modifiers()
+    if dy > 0: dir_name = 'scroll_up'
+    elif dy < 0: dir_name = 'scroll_down'
+    elif dx > 0: dir_name = 'scroll_right'
+    elif dx < 0: dir_name = 'scroll_left'
+    else: return
+    
+    keys = mods + [dir_name]
+    check_mouse_hotkey('+'.join(keys))
+
+def on_click(x, y, button, pressed):
+    if pressed:
+        mods = get_modifiers()
+        btn_name = str(button).replace('Button.', 'mouse_')
+        keys = mods + [btn_name]
+        check_mouse_hotkey('+'.join(keys))
+
+def apply_hotkeys():
+    try:
+        keyboard.unhook_all_hotkeys()
+    except AttributeError:
+        pass
+        
+    if not G_CONFIG.get("master_enable", True):
+        return
+        
+    hotkeys = G_CONFIG.get("hotkeys", {})
+    enabled = G_CONFIG.get("enabled", {})
+    
+    for action, hk in hotkeys.items():
+        if enabled.get(action, True) and hk:
+            try:
+                keyboard.add_hotkey(hk, lambda a=action: exec_action(a))
+            except Exception:
+                pass
+
+def config_watcher(interval=1.0):
+    global G_CONFIG
+    last_mtime = 0
+    if os.path.exists(config_manager.CONFIG_FILE):
+        last_mtime = os.path.getmtime(config_manager.CONFIG_FILE)
+        
+    while True:
+        time.sleep(interval)
+        if os.path.exists(config_manager.CONFIG_FILE):
+            current_mtime = os.path.getmtime(config_manager.CONFIG_FILE)
+            if current_mtime > last_mtime:
+                last_mtime = current_mtime
+                G_CONFIG = config_manager.load_config()
+                apply_hotkeys()
+
+def create_image():
+    icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dash.ico')
+    if os.path.exists(icon_path):
+        try:
+            return Image.open(icon_path)
+        except Exception:
+            pass
+
+    width = 64
+    height = 64
+    image = Image.new('RGB', (width, height), color=(30, 30, 30))
+    dc = ImageDraw.Draw(image)
+    dc.rectangle([width//4, height//4, width*3//4, height*3//4], fill=(40, 150, 255)) # update to a blue shade
+    return image
+
+def launch_settings(icon, item):
+    settings_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.py")
+    subprocess.Popen([sys.executable, settings_script], shell=True)
+
+def main():
+    global listener, tray_icon
+    apply_hotkeys()
+    
+    listener = mouse.Listener(
+        on_scroll=on_scroll,
+        on_click=on_click)
+    listener.start()
+
+    watcher_thread = threading.Thread(target=config_watcher, daemon=True)
+    watcher_thread.start()
+
+    menu = pystray.Menu(
+        pystray.MenuItem('Settings', launch_settings, default=True),
+        pystray.MenuItem('Quit', quit_app)
+    )
+    tray_icon = pystray.Icon("ScreenDash", create_image(), "ScreenDash", menu)
+    tray_icon.run()
+
+if __name__ == "__main__":
+    import ctypes
+    myappid = 'screendash.windowmanager.v1'
+    try:
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    except Exception:
+        pass
+    main()
