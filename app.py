@@ -265,18 +265,31 @@ def gather_all_windows():
     work_area = monitor_info.rcWork
     target_x = work_area.left + 50
     target_y = work_area.top + 50
-    offset = 0
     
+    hwnds = []
     def callback(hwnd, ctx):
-        nonlocal offset
-        if is_main_window(hwnd):
-            # SWP_NOSIZE | SWP_NOZORDER = 0x0005
-            user32.SetWindowPos(hwnd, 0, target_x + offset, target_y + offset, 0, 0, 0x0005)
-            offset = (offset + 40) % 400
+        if not user32.IsWindowVisible(hwnd):
+            return True
+        title = get_window_title(hwnd)
+        if not title or title in ["Program Manager", "Settings"]:
+            return True
+        if user32.GetWindow(hwnd, 4) != 0: 
+            return True
+        hwnds.append(hwnd)
         return True
     
     cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
     user32.EnumWindows(cb, 0)
+    
+    offset = 0
+    for hwnd in hwnds:
+        style = user32.GetWindowLongW(hwnd, GWL_STYLE)
+        if user32.IsIconic(hwnd) or (style & WS_MAXIMIZE_STYLE):
+            user32.ShowWindow(hwnd, SW_RESTORE)
+            time.sleep(0.01)
+            
+        user32.SetWindowPos(hwnd, 0, target_x + offset, target_y + offset, 0, 0, 0x0005)
+        offset = (offset + 40) % 400
 
 tray_icon = None
 listener = None
