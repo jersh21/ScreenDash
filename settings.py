@@ -120,13 +120,13 @@ class DualHotkeyEntry(ctk.CTkFrame):
             self.checkbox1.deselect()
         
         # Hotkey 1 Entry
-        self.entry1 = ctk.CTkEntry(self, placeholder_text="e.g. ctrl+shift+a", width=140)
-        self.entry1.insert(0, val1)
+        self.entry1 = ctk.CTkEntry(self, placeholder_text="e.g. ctrl+shift+a", width=180)
+        self.entry1.insert(0, val1.upper())
         self.entry1.grid(row=0, column=3, sticky="ew", padx=10, pady=10)
         
         # Hotkey 1 Record
         self.record_btn1 = ctk.CTkButton(self, text="Record", width=60, command=lambda: self.start_recording(1))
-        self.record_btn1.grid(row=0, column=4, padx=(0, 20), pady=10)
+        self.record_btn1.grid(row=0, column=4, padx=(5, 10), pady=10)
         
         # Splitter / Separator visual 
         self.sep = ctk.CTkFrame(self, width=2, height=20, fg_color="gray50")
@@ -141,13 +141,13 @@ class DualHotkeyEntry(ctk.CTkFrame):
             self.checkbox2.deselect()
         
         # Hotkey 2 Entry
-        self.entry2 = ctk.CTkEntry(self, placeholder_text="Alternate / Mouse Actions", width=140)
-        self.entry2.insert(0, val2)
+        self.entry2 = ctk.CTkEntry(self, placeholder_text="Alternate / Mouse Actions", width=180)
+        self.entry2.insert(0, val2.upper())
         self.entry2.grid(row=0, column=7, sticky="ew", padx=10, pady=10)
         
         # Hotkey 2 Record
         self.record_btn2 = ctk.CTkButton(self, text="Record", width=60, command=lambda: self.start_recording(2))
-        self.record_btn2.grid(row=0, column=8, padx=10, pady=10)
+        self.record_btn2.grid(row=0, column=8, padx=(5, 10), pady=10)
         
         self.recorder = None
 
@@ -166,19 +166,19 @@ class DualHotkeyEntry(ctk.CTkFrame):
         btn = self.record_btn1 if idx == 1 else self.record_btn2
         
         entry.delete(0, 'end')
-        entry.insert(0, hotkey_str)
+        entry.insert(0, hotkey_str.upper())
         btn.configure(text="Record", state="normal")
         self.recorder = None
 
     def get_values(self):
-        return (self.entry1.get(), bool(self.checkbox1.get()), self.entry2.get(), bool(self.checkbox2.get()))
+        return (self.entry1.get().lower(), bool(self.checkbox1.get()), self.entry2.get().lower(), bool(self.checkbox2.get()))
 
 class SettingsApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         
         self.title("ScreenDash Settings")
-        self.geometry("1000x820")
+        self.geometry("1000x880")
         
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dash.ico")
         if os.path.exists(icon_path):
@@ -268,7 +268,29 @@ class SettingsApp(ctk.CTk):
             self.hotkeys[k2], self.enabled[k2] = v2, e2
             frame.destroy()
             
+        if hasattr(self, 'header_row') and self.header_row:
+            self.header_row.destroy()
+            
         self.row_frames = []
+        
+        self.header_row = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        self.header_row.pack(fill="x", pady=(0, 5), padx=5)
+        self.header_row.grid_columnconfigure(4, weight=1)
+        self.header_row.grid_columnconfigure(8, weight=1)
+        
+        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=0, padx=(5,0))
+        ctk.CTkLabel(self.header_row, text="", width=170).grid(row=0, column=1, padx=10)
+        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=2, padx=(10,5))
+        
+        l1 = ctk.CTkLabel(self.header_row, text="Hotkey 1", font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
+        l1.grid(row=0, column=3, sticky="w", padx=10)
+        
+        ctk.CTkFrame(self.header_row, width=2, height=0, fg_color="transparent").grid(row=0, column=5, padx=10)
+        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=6, padx=(10,5))
+        
+        l2 = ctk.CTkLabel(self.header_row, text="Hotkey 2", font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
+        l2.grid(row=0, column=7, sticky="w", padx=10)
+        
         
         for idx, (name, key1, key2, def1, def2) in enumerate(self.active_mapping):
             val1 = self.hotkeys.get(key1, "")
