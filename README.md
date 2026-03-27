@@ -44,6 +44,9 @@ ScreenDash supports customizable hotkeys for the following actions:
 ## Developer Notes & Changelog
 
 **Latest Fixes:**
+- bug fix  internal EnumWindows loop error. fixed by gathering all the window IDs first then iterating through them.
+- added minimize all feature
+- ensure new features are added to config.json and settings.py codebase in order to work.
 - added ALREADY_EXISTS to prevent multiple instances of settings windows.
 - Ensured all hotkeys are unhooked when the `master_enable` state transitions to `False`.
 - Fixed `exec_action()` function where the `action_name` variable was not being passed correctly.
