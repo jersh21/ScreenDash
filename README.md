@@ -68,5 +68,5 @@ ScreenDash supports customizable hotkeys for the following actions:
 
 **Future Thoughts:**
 - Explore using `DwmGetWindowAttribute` with `DWMWA_EXTENDED_FRAME_BOUNDS` instead of `GetWindowRect`. The standard `GetWindowRect` often includes invisible "drop shadows", whereas DWM bounds give the visible frame. (Actual Width = Right - Left - Invisible Shadow Padding).
-- Consider adding a "BOSS MODE" (window hiding feature) or an "Always on Top" toggle. Note: Needs rigorous testing as it might introduce bugs.
+- Considered adding a "BOSS MODE" window hiding feature or "Always on Top" toggle. Note: could cause annoying bugs so deciding not to do it here.
 
