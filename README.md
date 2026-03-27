@@ -9,7 +9,8 @@ It directly hooks into the native Windows operating system API (via `ctypes.wind
 **Absolutely Zero Networking:** The Python scripts (`app.py`, `settings.py`, etc.) do not use any internet or network libraries. It doesn't open any ports, host any server, or send any data anywhere.
 
 ## Software Requirements
-- **Python 3.10** or higher
+** IMPORTANT During PYTHON Installation make sure ADD TO PATH is checked (it should be on by default) **
+- **Python 3.10** or higher 
 - **pystray**: Creates the system tray icon so the app can run silently.
 - **pynput**: Detects global mouse scrolling and middle-click events.
 - **keyboard**: Listens for and registers your global keyboard shortcuts.
@@ -46,6 +47,7 @@ ScreenDash supports customizable hotkeys for the following actions:
 ## Developer Notes & Changelog
 
 **Latest Fixes:**
+- Increased font size. Reduced Record button's margins. Increased hotkey input's width. Added shortcut 1 and 2 text at the top for clarity.
 - Bug fix  internal EnumWindows loop error. Fixed by gathering all the window IDs first then sequencing through them.
 - Added minimize all feature.
 - Ensure new features are added to config.json and settings.py codebase in order to work.
