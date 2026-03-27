@@ -1,6 +1,7 @@
 # ScreenDash
 <img width="1082" height="924" alt="image" src="https://github.com/user-attachments/assets/3f466d3a-1a04-4c6b-a992-8ffcd9d224d3" />
 
+
 ScreenDash is a lightweight system-tray application for Windows that enables dynamic hotkey registration to make window management incredibly fast and easy. 
 
 It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`) to grab window coordinates, calculate monitor bounds, and snap them cleanly. All code and image assets operate securely and locally.
@@ -35,6 +36,7 @@ ScreenDash supports customizable hotkeys for the following actions:
 - Move window to top right
 - Move window to next monitor
 - Minimize / Maximize / Close window
+- Minimize all windows
 - Restore minimized windows
 - Move window to left half / right half
 - Gather all windows 

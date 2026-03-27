@@ -221,6 +221,7 @@ class SettingsApp(ctk.CTk):
             ("Maximize Window", "maximize_window", "alt_maximize", "ctrl+shift+up", "alt+scroll_up"),
             ("Close Window", "close_window", "alt_close", "ctrl+shift+x", "alt+mouse_middle"),
             ("Restore Minimized Windows", "restore_all_minimized", "alt_restore", "ctrl+shift+r", "ctrl+alt+scroll_up"),
+            ("Minimize All Windows", "minimize_all", "alt_minimize_all", "ctrl+shift+m", "ctrl+alt+scroll_down"),
             ("Move Left Half", "move_left_half", "alt_move_left", "ctrl+windows+left", "alt+scroll_left"),
             ("Move Right Half", "move_right_half", "alt_move_right", "ctrl+windows+right", "alt+scroll_right"),
             ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g")
@@ -381,6 +382,17 @@ class SettingsApp(ctk.CTk):
 
 if __name__ == "__main__":
     import ctypes
+    
+    mutex_name = "Local\\ScreenDashSettingsMutex"
+    mutex = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
+    if ctypes.windll.kernel32.GetLastError() == 183: # ERROR_ALREADY_EXISTS
+        user32 = ctypes.windll.user32
+        hwnd = user32.FindWindowW(None, "ScreenDash Settings")
+        if hwnd:
+            user32.ShowWindow(hwnd, 9) # SW_RESTORE
+            user32.SetForegroundWindow(hwnd)
+        sys.exit(0)
+
     myappid = 'screendash.windowmanager.v1'
     try:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)

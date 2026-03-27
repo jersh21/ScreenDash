@@ -7,6 +7,8 @@ import threading
 import subprocess
 import pystray
 from PIL import Image, ImageDraw
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="PIL")
 from ctypes import wintypes
 from pynput import mouse
 import config_manager
@@ -209,13 +211,16 @@ def close_window():
         user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
 
 def restore_all_minimized():
+    hwnds = []
     def callback(hwnd, ctx):
         if user32.IsIconic(hwnd) and user32.IsWindowVisible(hwnd):
-            user32.ShowWindow(hwnd, SW_RESTORE)
+            hwnds.append(hwnd)
         return True
     
     cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
     user32.EnumWindows(cb, 0)
+    for hwnd in hwnds:
+        user32.ShowWindow(hwnd, SW_RESTORE)
 
 def get_window_title(hwnd):
     length = user32.GetWindowTextLengthW(hwnd)
@@ -234,6 +239,18 @@ def is_main_window(hwnd):
     if user32.GetWindow(hwnd, 4) != 0: 
         return False
     return True
+
+def minimize_all_windows():
+    hwnds = []
+    def callback(hwnd, ctx):
+        if is_main_window(hwnd):
+            hwnds.append(hwnd)
+        return True
+    
+    cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
+    user32.EnumWindows(cb, 0)
+    for hwnd in hwnds:
+        user32.ShowWindow(hwnd, SW_MINIMIZE)
 
 def gather_all_windows():
     pt = POINT()
@@ -303,6 +320,8 @@ def exec_action(action_name):
         "alt_close": close_window,
         "restore_all_minimized": restore_all_minimized,
         "alt_restore": restore_all_minimized,
+        "minimize_all": minimize_all_windows,
+        "alt_minimize_all": minimize_all_windows,
         "move_left_half": lambda: _move_window("left_half"),
         "alt_move_left": lambda: _move_window("left_half"),
         "move_right_half": lambda: _move_window("right_half"),
