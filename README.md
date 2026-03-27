@@ -1,5 +1,6 @@
 # ScreenDash
-<img width="1082" height="924" alt="image" src="https://github.com/user-attachments/assets/3f466d3a-1a04-4c6b-a992-8ffcd9d224d3" />
+<img width="1078" height="943" alt="image" src="https://github.com/user-attachments/assets/0390de15-fc40-48b4-9ce8-bd94695db7ab" />
+
 
 
 ScreenDash is a lightweight system-tray application for Windows that enables dynamic hotkey registration to make window management incredibly fast and easy. 
