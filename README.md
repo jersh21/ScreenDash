@@ -1,4 +1,5 @@
 # ScreenDash
+<img width="1082" height="924" alt="image" src="https://github.com/user-attachments/assets/3f466d3a-1a04-4c6b-a992-8ffcd9d224d3" />
 
 ScreenDash is a lightweight system-tray application for Windows that enables dynamic hotkey registration to make window management incredibly fast and easy. 
 
@@ -43,6 +44,7 @@ ScreenDash supports customizable hotkeys for the following actions:
 ## Developer Notes & Changelog
 
 **Latest Fixes:**
+- added ALREADY_EXISTS to prevent multiple instances of settings windows.
 - Ensured all hotkeys are unhooked when the `master_enable` state transitions to `False`.
 - Fixed `exec_action()` function where the `action_name` variable was not being passed correctly.
 - Resolved an issue with `get_window_under_cursor` where Windows taskbar elements (`Shell_TrayWnd`, `NotifyIconOverflowWindow`, `Progman`, `WorkerW`) would accidentally get minimized or disappear.
