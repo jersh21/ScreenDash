@@ -35,7 +35,8 @@ DEFAULT_CONFIG = {
         "alt_close": True,
         "gather_all_windows": True,
         "alt_gather_windows": True
-    }
+    },
+    "focus_mode": False
 }
 
 def load_config():

@@ -207,6 +207,19 @@ class SettingsApp(ctk.CTk):
         )
         self.master_switch.pack(pady=(15, 10))
         
+        self.master_focus_var = ctk.BooleanVar(value=self.config.get("focus_mode", False))
+        self.master_focus_switch = ctk.CTkSwitch(
+            self, 
+            text="Enable Focus Mode (30m)", 
+            variable=self.master_focus_var,
+            font=ctk.CTkFont(weight="bold", size=16),
+            switch_width=44,
+            switch_height=22,
+            progress_color="#FF4444", 
+            command=self.on_focus_toggle
+        )
+        self.master_focus_switch.pack(pady=(0, 15))
+        
         self.title_label = ctk.CTkLabel(self, text="Windows Hotkey Configuration", font=ctk.CTkFont(size=14, weight="bold"))
         self.title_label.pack(pady=(0, 15))
         
@@ -340,6 +353,11 @@ class SettingsApp(ctk.CTk):
         for frame in self.row_frames:
             frame.checkbox1.configure(bg_color="transparent", fg_color=cb_fg, hover_color=cb_hover)
             frame.checkbox2.configure(bg_color="transparent", fg_color=cb_fg, hover_color=cb_hover)
+
+    def on_focus_toggle(self):
+        is_focused = self.master_focus_var.get()
+        self.config["focus_mode"] = is_focused
+        config_manager.save_config(self.config)
 
     def on_master_toggle(self):
         is_enabled = self.master_enable_var.get()

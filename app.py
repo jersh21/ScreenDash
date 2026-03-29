@@ -391,18 +391,36 @@ def apply_hotkeys():
 
 def config_watcher(interval=1.0):
     global G_CONFIG
+    focus_process = None
     last_mtime = 0
     if os.path.exists(config_manager.CONFIG_FILE):
         last_mtime = os.path.getmtime(config_manager.CONFIG_FILE)
         
     while True:
         time.sleep(interval)
+        
+        # Clean up process reference if it exited on its own (timer reached zero).
+        if focus_process is not None:
+            if focus_process.poll() is not None:
+                focus_process = None
+                
         if os.path.exists(config_manager.CONFIG_FILE):
             current_mtime = os.path.getmtime(config_manager.CONFIG_FILE)
             if current_mtime > last_mtime:
                 last_mtime = current_mtime
                 G_CONFIG = config_manager.load_config()
                 apply_hotkeys()
+                
+                focus_enabled = G_CONFIG.get("focus_mode", False)
+                if focus_enabled and focus_process is None:
+                    script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "focus_overlay.py")
+                    focus_process = subprocess.Popen([sys.executable, script_path], creationflags=subprocess.CREATE_NO_WINDOW)
+                elif not focus_enabled and focus_process is not None:
+                    try:
+                        focus_process.terminate()
+                    except Exception:
+                        pass
+                    focus_process = None
 
 def create_image():
     icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dash.ico')

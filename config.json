@@ -55,5 +55,6 @@
         "move_left_half",
         "move_right_half",
         "minimize_all"
-    ]
+    ],
+    "focus_mode": true
 }

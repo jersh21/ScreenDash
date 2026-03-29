@@ -1,0 +1,70 @@
+import tkinter as tk
+import time
+import ctypes
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import config_manager
+
+def set_focus_mode_false():
+    config = config_manager.load_config()
+    config["focus_mode"] = False
+    config_manager.save_config(config)
+
+class FocusOverlay:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.overrideredirect(True)
+        self.root.attributes("-topmost", True)
+        self.root.attributes("-transparentcolor", "black")
+        self.root.configure(bg="black")
+        
+        # Ensure it's rendered to get HWND
+        self.root.update_idletasks()
+        
+        # Make the window click-through (WS_EX_LAYERED | WS_EX_TRANSPARENT)
+        try:
+            hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
+            if hwnd == 0:
+                hwnd = self.root.winfo_id()
+                
+            GWL_EXSTYLE = -20
+            WS_EX_LAYERED = 0x80000
+            WS_EX_TRANSPARENT = 0x20
+            
+            style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED | WS_EX_TRANSPARENT)
+        except Exception as e:
+            print("Failed to make click-through:", e)
+
+        # Red text on black background (which becomes transparent)
+        self.label = tk.Label(self.root, text="", font=("Segoe UI", 16, "bold"), fg="#FF4444", bg="black")
+        self.label.pack(expand=True, fill="both")
+        
+        # Position at the bottom right. Taskbar clock is usually here.
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        
+        # Estimate: width 200px, height 40px, positioned above the taskbar clock.
+        self.root.geometry(f"200x40+{screen_width - 210}+{screen_height - 90}")
+
+        self.time_left = 30 * 60
+        self.update_timer()
+
+    def update_timer(self):
+        if self.time_left <= 0:
+            set_focus_mode_false()
+            self.root.destroy()
+            return
+            
+        m = self.time_left // 60
+        s = self.time_left % 60
+        self.label.config(text=f"FOCUS = {m}m {s:02d}s")
+        
+        self.time_left -= 1
+        self.root.after(1000, self.update_timer)
+
+if __name__ == "__main__":
+    overlay = FocusOverlay()
+    overlay.root.mainloop()
