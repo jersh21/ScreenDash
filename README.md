@@ -49,6 +49,7 @@ ScreenDash supports customizable hotkeys for the following actions:
 ## Developer Notes & Changelog
 
 **Latest Fixes:** Last updated 2026-03-28
+- Bug fix: App wasn't closing entirely as expected in Spanish mode due to a change in the title of the Settings window. updated quit_app() function.
 - Added language toggle feature (English / Spanish).
 - Added focus mode toggle feature with 30 minute unminimizable timer. Timer turns off within 5 seconds of app close since it will inherit a unique Process ID from ScreenDash.
 - Improved Quit behavior.

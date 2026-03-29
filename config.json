@@ -56,6 +56,6 @@
         "move_right_half",
         "minimize_all"
     ],
-    "focus_mode": true,
-    "lang": "es"
+    "focus_mode": false,
+    "lang": "en"
 }
