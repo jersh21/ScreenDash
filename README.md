@@ -1,5 +1,6 @@
 # ScreenDash
-<img width="1078" height="943" alt="image" src="https://github.com/user-attachments/assets/0390de15-fc40-48b4-9ce8-bd94695db7ab" />
+<img width="1005" height="917" alt="image" src="https://github.com/user-attachments/assets/4bc74ce3-5a18-4289-ba93-787d1c07da53" />
+
 
 
 
