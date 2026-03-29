@@ -233,7 +233,7 @@ def is_main_window(hwnd):
     if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
         return False
     title = get_window_title(hwnd)
-    if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings"]:
+    if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings", "Configuración de ScreenDash"]:
         return False
     # Exclude dialogs/popups owned by an existing main window
     if user32.GetWindow(hwnd, 4) != 0: 
@@ -271,7 +271,7 @@ def gather_all_windows():
         if not user32.IsWindowVisible(hwnd):
             return True
         title = get_window_title(hwnd)
-        if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings"]:
+        if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings", "Configuración de ScreenDash"]:
             return True
         if user32.GetWindow(hwnd, 4) != 0: 
             return True
@@ -300,9 +300,10 @@ def quit_app(icon=None, item=None):
     global listener, tray_icon
     
     # Clean up lingering windows from subprocesses
-    hwnd_settings = user32.FindWindowW(None, "ScreenDash Settings")
-    if hwnd_settings:
-        user32.PostMessageW(hwnd_settings, WM_CLOSE, 0, 0)
+    for title in ["ScreenDash Settings", "Configuración de ScreenDash"]:
+        hwnd_settings = user32.FindWindowW(None, title)
+        if hwnd_settings:
+            user32.PostMessageW(hwnd_settings, WM_CLOSE, 0, 0)
         
     hwnd_focus = user32.FindWindowW(None, "FocusOverlay")
     if hwnd_focus:

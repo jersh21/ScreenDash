@@ -500,7 +500,7 @@ if __name__ == "__main__":
     mutex = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
     if ctypes.windll.kernel32.GetLastError() == 183: # ERROR_ALREADY_EXISTS
         user32 = ctypes.windll.user32
-        hwnd = user32.FindWindowW(None, "ScreenDash Settings")
+        hwnd = user32.FindWindowW(None, "ScreenDash Settings") or user32.FindWindowW(None, "Configuración de ScreenDash")
         if hwnd:
             user32.ShowWindow(hwnd, 9) # SW_RESTORE
             user32.SetForegroundWindow(hwnd)
