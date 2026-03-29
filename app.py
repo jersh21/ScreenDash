@@ -20,6 +20,11 @@ SW_MAXIMIZE = 3
 SW_MINIMIZE = 6
 SW_RESTORE = 9
 WM_CLOSE = 0x0010
+WM_SYSCOMMAND = 0x0112
+SC_MINIMIZE = 0xF020
+SC_MAXIMIZE = 0xF030
+SC_RESTORE = 0xF120
+SC_CLOSE = 0xF060
 
 GWL_STYLE = -16
 WS_MAXIMIZE_STYLE = 0x01000000
@@ -88,7 +93,7 @@ def _move_window(position):
     
     style = user32.GetWindowLongW(hwnd, GWL_STYLE)
     if style & WS_MAXIMIZE_STYLE:
-        user32.ShowWindow(hwnd, SW_RESTORE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_RESTORE, 0)
         time.sleep(0.05)
 
     hmon = user32.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
@@ -136,7 +141,7 @@ def move_window_to_next_monitor():
     was_maximized = bool(style & WS_MAXIMIZE_STYLE)
     
     if was_maximized:
-        user32.ShowWindow(hwnd, SW_RESTORE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_RESTORE, 0)
         time.sleep(0.05)
         
     hmon_current = user32.MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)
@@ -190,7 +195,7 @@ def move_window_to_next_monitor():
     user32.SetWindowPos(hwnd, 0, new_x, new_y, width, height, 0x0004)
     
     if was_maximized:
-        user32.ShowWindow(hwnd, SW_MAXIMIZE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0)
 
 def move_window_top_right():
     _move_window("right_top")
@@ -198,17 +203,17 @@ def move_window_top_right():
 def minimize_window():
     hwnd = get_window_under_cursor()
     if hwnd:
-        user32.ShowWindow(hwnd, SW_MINIMIZE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0)
 
 def maximize_window():
     hwnd = get_window_under_cursor()
     if hwnd:
-        user32.ShowWindow(hwnd, SW_MAXIMIZE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0)
 
 def close_window():
     hwnd = get_window_under_cursor()
     if hwnd:
-        user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_CLOSE, 0)
 
 def restore_all_minimized():
     hwnds = []
@@ -220,7 +225,7 @@ def restore_all_minimized():
     cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
     user32.EnumWindows(cb, 0)
     for hwnd in hwnds:
-        user32.ShowWindow(hwnd, SW_RESTORE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_RESTORE, 0)
 
 def get_window_title(hwnd):
     length = user32.GetWindowTextLengthW(hwnd)
@@ -250,7 +255,7 @@ def minimize_all_windows():
     cb = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)(callback)
     user32.EnumWindows(cb, 0)
     for hwnd in hwnds:
-        user32.ShowWindow(hwnd, SW_MINIMIZE)
+        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0)
 
 def gather_all_windows():
     pt = POINT()
@@ -285,7 +290,7 @@ def gather_all_windows():
     for hwnd in hwnds:
         style = user32.GetWindowLongW(hwnd, GWL_STYLE)
         if user32.IsIconic(hwnd) or (style & WS_MAXIMIZE_STYLE):
-            user32.ShowWindow(hwnd, SW_RESTORE)
+            user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_RESTORE, 0)
             time.sleep(0.01)
             
         user32.SetWindowPos(hwnd, 0, target_x + offset, target_y + offset, 0, 0, 0x0005)
