@@ -194,9 +194,12 @@ class SettingsApp(ctk.CTk):
         
         self.entries = {}
         
+        self.top_switches_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.top_switches_frame.pack(fill="x", padx=50, pady=(15, 5))
+        
         self.master_enable_var = ctk.BooleanVar(value=self.config.get("master_enable", True))
         self.master_switch = ctk.CTkSwitch(
-            self, 
+            self.top_switches_frame, 
             text="Enable ScreenDash", 
             variable=self.master_enable_var,
             font=ctk.CTkFont(weight="bold", size=28),
@@ -205,20 +208,20 @@ class SettingsApp(ctk.CTk):
             progress_color="#28a745", # visually matches a nice green iOS toggle
             command=self.on_master_toggle
         )
-        self.master_switch.pack(pady=(15, 10))
+        self.master_switch.pack(side="left", padx=10)
         
         self.master_focus_var = ctk.BooleanVar(value=self.config.get("focus_mode", False))
         self.master_focus_switch = ctk.CTkSwitch(
-            self, 
+            self.top_switches_frame, 
             text="Enable Focus Mode (30m)", 
             variable=self.master_focus_var,
             font=ctk.CTkFont(weight="bold", size=16),
             switch_width=44,
             switch_height=22,
-            progress_color="#FF4444", 
+            progress_color="#28a745", 
             command=self.on_focus_toggle
         )
-        self.master_focus_switch.pack(pady=(0, 15))
+        self.master_focus_switch.pack(side="right", padx=10)
         
         self.title_label = ctk.CTkLabel(self, text="Windows Hotkey Configuration", font=ctk.CTkFont(size=14, weight="bold"))
         self.title_label.pack(pady=(0, 15))
@@ -272,6 +275,7 @@ class SettingsApp(ctk.CTk):
         
         # Apply initial visual colors to match current master toggle state
         self.update_colors(self.master_enable_var.get())
+        self.update_focus_colors(self.master_focus_var.get())
 
     def render_rows(self):
         for frame in self.row_frames:
@@ -354,10 +358,17 @@ class SettingsApp(ctk.CTk):
             frame.checkbox1.configure(bg_color="transparent", fg_color=cb_fg, hover_color=cb_hover)
             frame.checkbox2.configure(bg_color="transparent", fg_color=cb_fg, hover_color=cb_hover)
 
+    def update_focus_colors(self, is_focused):
+        if is_focused:
+            self.master_focus_switch.configure(button_color="#FFFFFF", button_hover_color="#E0E0E0")
+        else:
+            self.master_focus_switch.configure(button_color="#FF5A5A", button_hover_color="#FF7F7F")
+
     def on_focus_toggle(self):
         is_focused = self.master_focus_var.get()
         self.config["focus_mode"] = is_focused
         config_manager.save_config(self.config)
+        self.update_focus_colors(is_focused)
 
     def on_master_toggle(self):
         is_enabled = self.master_enable_var.get()

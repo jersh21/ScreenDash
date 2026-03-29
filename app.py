@@ -233,7 +233,7 @@ def is_main_window(hwnd):
     if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
         return False
     title = get_window_title(hwnd)
-    if not title or title in ["Program Manager", "Settings"]:
+    if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings"]:
         return False
     # Exclude dialogs/popups owned by an existing main window
     if user32.GetWindow(hwnd, 4) != 0: 
@@ -271,7 +271,7 @@ def gather_all_windows():
         if not user32.IsWindowVisible(hwnd):
             return True
         title = get_window_title(hwnd)
-        if not title or title in ["Program Manager", "Settings"]:
+        if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings"]:
             return True
         if user32.GetWindow(hwnd, 4) != 0: 
             return True
@@ -298,6 +298,16 @@ LOCK_FILE = "recording.lock"
 
 def quit_app(icon=None, item=None):
     global listener, tray_icon
+    
+    # Clean up lingering windows from subprocesses
+    hwnd_settings = user32.FindWindowW(None, "ScreenDash Settings")
+    if hwnd_settings:
+        user32.PostMessageW(hwnd_settings, WM_CLOSE, 0, 0)
+        
+    hwnd_focus = user32.FindWindowW(None, "FocusOverlay")
+    if hwnd_focus:
+        user32.PostMessageW(hwnd_focus, WM_CLOSE, 0, 0)
+        
     if listener:
         listener.stop()
     if tray_icon:
@@ -414,7 +424,7 @@ def config_watcher(interval=1.0):
                 focus_enabled = G_CONFIG.get("focus_mode", False)
                 if focus_enabled and focus_process is None:
                     script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "focus_overlay.py")
-                    focus_process = subprocess.Popen([sys.executable, script_path], creationflags=subprocess.CREATE_NO_WINDOW)
+                    focus_process = subprocess.Popen([sys.executable, script_path, str(os.getpid())], creationflags=subprocess.CREATE_NO_WINDOW)
                 elif not focus_enabled and focus_process is not None:
                     try:
                         focus_process.terminate()
@@ -443,6 +453,13 @@ def launch_settings(icon, item):
 
 def main():
     global listener, tray_icon
+    
+    # Force focus mode to be OFF on launch
+    init_config = config_manager.load_config()
+    if init_config.get("focus_mode", True):
+        init_config["focus_mode"] = False
+        config_manager.save_config(init_config)
+    
     apply_hotkeys()
     
     listener = mouse.Listener(

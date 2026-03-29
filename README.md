@@ -47,8 +47,9 @@ ScreenDash supports customizable hotkeys for the following actions:
 
 ## Developer Notes & Changelog
 
-**Latest Fixes:**
-- Fixed the gather_all_windows function in app.py to fix two bugs with gather and restore windows.
+**Latest Fixes:** Last updated 2026-03-28
+- Added focus mode toggle feature with 30 minute unminimizable timer. Timer turns off within 5 seconds of app close since it will inherit a unique Process ID from ScreenDash.
+- Improved Quit behavior.
 - Increased font size. Reduced Record button's margins. Increased hotkey input's width. Added shortcut 1 and 2 text at the top for clarity.
 - Bug fix  internal EnumWindows loop error. Fixed by gathering all the window IDs first then sequencing through them.
 - Added minimize all feature.
@@ -67,6 +68,7 @@ ScreenDash supports customizable hotkeys for the following actions:
 - Renamed application to ScreenDash.
 
 **Future Thoughts:**
+- I thought to automatically show ScreenDash in the system tray, but Microsoft doesn't allow apps to do that I found out!
 - Explore using `DwmGetWindowAttribute` with `DWMWA_EXTENDED_FRAME_BOUNDS` instead of `GetWindowRect`. The standard `GetWindowRect` often includes invisible "drop shadows", whereas DWM bounds give the visible frame. (Actual Width = Right - Left - Invisible Shadow Padding).
 - Considered adding a "BOSS MODE" window hiding feature or "Always on Top" toggle. Note: could cause annoying bugs so deciding not to do it here.
 
