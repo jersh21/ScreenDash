@@ -40,9 +40,9 @@ class FocusOverlay:
         except Exception as e:
             print("Failed to make click-through:", e)
 
-        # Red text on black background (which becomes transparent)
-        self.label = tk.Label(self.root, text="", font=("Segoe UI", 16, "bold"), fg="#FF4444", bg="black")
-        self.label.pack(expand=True, fill="both")
+        # Canvas for drawing text with a glow/outline since tk.Label doesn't support it natively
+        self.canvas = tk.Canvas(self.root, bg="black", highlightthickness=0)
+        self.canvas.pack(expand=True, fill="both")
         
         # Position at the bottom right. Taskbar clock is usually here.
         screen_width = self.root.winfo_screenwidth()
@@ -79,7 +79,20 @@ class FocusOverlay:
             
         m = self.time_left // 60
         s = self.time_left % 60
-        self.label.config(text=f"FOCUS = {m}m {s:02d}s")
+        text_str = f"FOCUS {m}m {s:02d}s"
+        
+        self.canvas.delete("all")
+        font = ("Segoe UI", 20, "bold")
+        cx, cy = 100, 20
+        
+        # Draw 1px dark red outline (glow)
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if dx == 0 and dy == 0: continue
+                self.canvas.create_text(cx + dx, cy + dy, text=text_str, font=font, fill="darkred")
+                
+        # Draw main red text
+        self.canvas.create_text(cx, cy, text=text_str, font=font, fill="#FF4444")
         
         self.time_left -= 1
         self.root.after(1000, self.update_timer)
