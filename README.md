@@ -48,6 +48,7 @@ ScreenDash supports customizable hotkeys for the following actions:
 ## Developer Notes & Changelog
 
 **Latest Fixes:** Last updated 2026-03-28
+- Added language toggle feature (English / Spanish).
 - Added focus mode toggle feature with 30 minute unminimizable timer. Timer turns off within 5 seconds of app close since it will inherit a unique Process ID from ScreenDash.
 - Improved Quit behavior.
 - Increased font size. Reduced Record button's margins. Increased hotkey input's width. Added shortcut 1 and 2 text at the top for clarity.

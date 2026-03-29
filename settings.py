@@ -12,6 +12,40 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 LOCK_FILE = "recording.lock"
 
+ES_DICT = {
+    "ScreenDash Settings": "Configuración de ScreenDash",
+    "Enable ScreenDash": "Habilitar ScreenDash",
+    "Enable Focus Mode (30m)": "Habilitar Modo de Enfoque (30m)",
+    "Windows Hotkey Configuration": "Configuración de Teclas Rápidas de Windows",
+    "Hotkey 1": "Tecla 1",
+    "Hotkey 2": "Tecla 2",
+    "Record": "Grabar",
+    "Listening...": "Escuchando...",
+    "e.g. ctrl+shift+a": "ej. ctrl+shift+a",
+    "Alternate / Mouse Actions": "Acciones de Ratón / Alternativas",
+    "APPLY": "APLICAR",
+    "Close": "Cerrar",
+    "Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action.": "Nota: Haga clic en 'Grabar' para vincular combinaciones de teclado o ratón. 'Tecla 2' funciona como un atajo alternativo.",
+    "Saved Dash": "Dash Guardado",
+    "Move Top Right": "Mover Arriba a la Derecha",
+    "Move to Next Monitor": "Mover al Siguiente Monitor",
+    "Minimize Window": "Minimizar Ventana",
+    "Maximize Window": "Maximizar Ventana",
+    "Close Window": "Cerrar Ventana",
+    "Restore Minimized Windows": "Restaurar Ventanas Minimizadas",
+    "Minimize All Windows": "Minimizar Todas las Ventanas",
+    "Move Left Half": "Mover Mitad Izquierda",
+    "Move Right Half": "Mover Mitad Derecha",
+    "Gather All Windows": "Reunir Todas las Ventanas"
+}
+
+CURRENT_LANG = "en"
+
+def tr(text):
+    if CURRENT_LANG == "es":
+        return ES_DICT.get(text, text)
+    return text
+
 class HotkeyRecorder:
     def __init__(self, callback):
         self.callback = callback
@@ -120,12 +154,12 @@ class DualHotkeyEntry(ctk.CTkFrame):
             self.checkbox1.deselect()
         
         # Hotkey 1 Entry
-        self.entry1 = ctk.CTkEntry(self, placeholder_text="e.g. ctrl+shift+a", width=180)
+        self.entry1 = ctk.CTkEntry(self, placeholder_text=tr("e.g. ctrl+shift+a"), width=180)
         self.entry1.insert(0, val1.upper())
         self.entry1.grid(row=0, column=3, sticky="ew", padx=10, pady=10)
         
         # Hotkey 1 Record
-        self.record_btn1 = ctk.CTkButton(self, text="Record", width=60, command=lambda: self.start_recording(1))
+        self.record_btn1 = ctk.CTkButton(self, text=tr("Record"), width=60, command=lambda: self.start_recording(1))
         self.record_btn1.grid(row=0, column=4, padx=(5, 10), pady=10)
         
         # Splitter / Separator visual 
@@ -141,19 +175,19 @@ class DualHotkeyEntry(ctk.CTkFrame):
             self.checkbox2.deselect()
         
         # Hotkey 2 Entry
-        self.entry2 = ctk.CTkEntry(self, placeholder_text="Alternate / Mouse Actions", width=180)
+        self.entry2 = ctk.CTkEntry(self, placeholder_text=tr("Alternate / Mouse Actions"), width=180)
         self.entry2.insert(0, val2.upper())
         self.entry2.grid(row=0, column=7, sticky="ew", padx=10, pady=10)
         
         # Hotkey 2 Record
-        self.record_btn2 = ctk.CTkButton(self, text="Record", width=60, command=lambda: self.start_recording(2))
+        self.record_btn2 = ctk.CTkButton(self, text=tr("Record"), width=60, command=lambda: self.start_recording(2))
         self.record_btn2.grid(row=0, column=8, padx=(5, 10), pady=10)
         
         self.recorder = None
 
     def start_recording(self, idx):
         btn = self.record_btn1 if idx == 1 else self.record_btn2
-        btn.configure(text="Listening...", state="disabled")
+        btn.configure(text=tr("Listening..."), state="disabled")
         
         def on_rec(hotkey_str, i=idx):
             self.after(0, self._update_entry, hotkey_str, i)
@@ -167,7 +201,7 @@ class DualHotkeyEntry(ctk.CTkFrame):
         
         entry.delete(0, 'end')
         entry.insert(0, hotkey_str.upper())
-        btn.configure(text="Record", state="normal")
+        btn.configure(text=tr("Record"), state="normal")
         self.recorder = None
 
     def get_values(self):
@@ -177,7 +211,7 @@ class SettingsApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         
-        self.title("ScreenDash Settings")
+        self.title(tr("ScreenDash Settings"))
         self.geometry("1000x880")
         
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dash.ico")
@@ -192,15 +226,18 @@ class SettingsApp(ctk.CTk):
         self.hotkeys = self.config.get("hotkeys", {})
         self.enabled = self.config.get("enabled", {})
         
+        global CURRENT_LANG
+        CURRENT_LANG = self.config.get("lang", "en")
+        
         self.entries = {}
         
         self.top_switches_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.top_switches_frame.pack(fill="x", padx=50, pady=(15, 5))
+        self.top_switches_frame.pack(fill="x", padx=30, pady=(15, 5))
         
         self.master_enable_var = ctk.BooleanVar(value=self.config.get("master_enable", True))
         self.master_switch = ctk.CTkSwitch(
             self.top_switches_frame, 
-            text="Enable ScreenDash", 
+            text=tr("Enable ScreenDash"), 
             variable=self.master_enable_var,
             font=ctk.CTkFont(weight="bold", size=28),
             switch_width=72,
@@ -213,7 +250,7 @@ class SettingsApp(ctk.CTk):
         self.master_focus_var = ctk.BooleanVar(value=self.config.get("focus_mode", False))
         self.master_focus_switch = ctk.CTkSwitch(
             self.top_switches_frame, 
-            text="Enable Focus Mode (30m)", 
+            text=tr("Enable Focus Mode (30m)"), 
             variable=self.master_focus_var,
             font=ctk.CTkFont(weight="bold", size=16),
             switch_width=44,
@@ -221,9 +258,17 @@ class SettingsApp(ctk.CTk):
             progress_color="#28a745", 
             command=self.on_focus_toggle
         )
-        self.master_focus_switch.pack(side="right", padx=10)
+        self.master_focus_switch.pack(side="left", padx=20)
         
-        self.title_label = ctk.CTkLabel(self, text="Windows Hotkey Configuration", font=ctk.CTkFont(size=14, weight="bold"))
+        self.lang_var = ctk.StringVar(value=CURRENT_LANG)
+        self.lang_switch = ctk.CTkSwitch(
+            self.top_switches_frame, text="EN / ES", variable=self.lang_var, onvalue="es", offvalue="en",
+            font=ctk.CTkFont(weight="bold", size=14), switch_width=36, switch_height=18,
+            progress_color="#3B8ED0", command=self.on_lang_toggle
+        )
+        self.lang_switch.pack(side="right", padx=10)
+        
+        self.title_label = ctk.CTkLabel(self, text=tr("Windows Hotkey Configuration"), font=ctk.CTkFont(size=14, weight="bold"))
         self.title_label.pack(pady=(0, 15))
         
         self.scroll_frame = ctk.CTkScrollableFrame(self)
@@ -261,13 +306,13 @@ class SettingsApp(ctk.CTk):
         self.btn_frame_bottom = ctk.CTkFrame(self, fg_color="transparent")
         self.btn_frame_bottom.pack(pady=20)
         
-        self.save_btn = ctk.CTkButton(self.btn_frame_bottom, text="APPLY", command=self.save_config, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"))
+        self.save_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("APPLY"), command=self.save_config, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"))
         self.save_btn.pack(side="left", padx=10)
         
-        self.close_btn = ctk.CTkButton(self.btn_frame_bottom, text="Close", command=self.on_closing, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), fg_color="gray40", hover_color="gray30")
+        self.close_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("Close"), command=self.on_closing, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), fg_color="gray40", hover_color="gray30")
         self.close_btn.pack(side="left", padx=10)
         
-        self.info_label = ctk.CTkLabel(self, text="Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action.", text_color="lightgray")
+        self.info_label = ctk.CTkLabel(self, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action."), text_color="lightgray")
         self.info_label.pack(pady=(0, 10))
         
         # Clean up lock file if window is closed during recording
@@ -299,13 +344,13 @@ class SettingsApp(ctk.CTk):
         ctk.CTkLabel(self.header_row, text="", width=170).grid(row=0, column=1, padx=10)
         ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=2, padx=(10,5))
         
-        l1 = ctk.CTkLabel(self.header_row, text="Hotkey 1", font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
+        l1 = ctk.CTkLabel(self.header_row, text=tr("Hotkey 1"), font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
         l1.grid(row=0, column=3, sticky="w", padx=10)
         
         ctk.CTkFrame(self.header_row, width=2, height=0, fg_color="transparent").grid(row=0, column=5, padx=10)
         ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=6, padx=(10,5))
         
-        l2 = ctk.CTkLabel(self.header_row, text="Hotkey 2", font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
+        l2 = ctk.CTkLabel(self.header_row, text=tr("Hotkey 2"), font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
         l2.grid(row=0, column=7, sticky="w", padx=10)
         
         
@@ -323,7 +368,7 @@ class SettingsApp(ctk.CTk):
             def make_cb(i, d): return lambda i=i, d=d: self.move_row(i, d)
 
             entry = DualHotkeyEntry(
-                self.scroll_frame, name, val1, en1, val2, en2, 
+                self.scroll_frame, tr(name), val1, en1, val2, en2, 
                 on_up=make_cb(idx, -1), on_down=make_cb(idx, 1),
                 fg_color=bg_color, corner_radius=6
             )
@@ -357,6 +402,23 @@ class SettingsApp(ctk.CTk):
         for frame in self.row_frames:
             frame.checkbox1.configure(bg_color="transparent", fg_color=cb_fg, hover_color=cb_hover)
             frame.checkbox2.configure(bg_color="transparent", fg_color=cb_fg, hover_color=cb_hover)
+
+    def update_static_translations(self):
+        self.title(tr("ScreenDash Settings"))
+        self.master_switch.configure(text=tr("Enable ScreenDash"))
+        self.master_focus_switch.configure(text=tr("Enable Focus Mode (30m)"))
+        self.title_label.configure(text=tr("Windows Hotkey Configuration"))
+        self.save_btn.configure(text=tr("APPLY"))
+        self.close_btn.configure(text=tr("Close"))
+        self.info_label.configure(text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action."))
+
+    def on_lang_toggle(self):
+        global CURRENT_LANG
+        CURRENT_LANG = self.lang_var.get()
+        self.config["lang"] = CURRENT_LANG
+        config_manager.save_config(self.config)
+        self.update_static_translations()
+        self.render_rows()
 
     def update_focus_colors(self, is_focused):
         if is_focused:
@@ -417,7 +479,7 @@ class SettingsApp(ctk.CTk):
         screen_height = self.winfo_screenheight()
         toast.geometry(f"160x50+{screen_width - 200}+{screen_height - 120}")
         
-        lbl = ctk.CTkLabel(toast, text="Saved Dash", font=ctk.CTkFont(size=16, weight="bold"), fg_color="#2ba64e", text_color="white", corner_radius=8)
+        lbl = ctk.CTkLabel(toast, text=tr("Saved Dash"), font=ctk.CTkFont(size=16, weight="bold"), fg_color="#2ba64e", text_color="white", corner_radius=8)
         lbl.pack(expand=True, fill="both")
         
         # Close only the toast popup after 2 seconds

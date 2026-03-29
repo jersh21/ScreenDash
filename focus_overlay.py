@@ -14,6 +14,10 @@ def set_focus_mode_false():
 
 class FocusOverlay:
     def __init__(self):
+        self.config = config_manager.load_config()
+        self.lang = self.config.get("lang", "en")
+        self.focus_text = "ENFOQUE" if self.lang == "es" else "FOCUS"
+        
         self.root = tk.Tk()
         self.root.title("FocusOverlay")
         self.root.overrideredirect(True)
@@ -48,8 +52,8 @@ class FocusOverlay:
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         
-        # Estimate: width 200px, height 40px, positioned above the taskbar clock.
-        self.root.geometry(f"200x40+{screen_width - 210}+{screen_height - 90}")
+        # Estimate: width 240px, height 40px, positioned above the taskbar clock.
+        self.root.geometry(f"240x40+{screen_width - 250}+{screen_height - 90}")
 
         self.time_left = 30 * 60
         self.update_timer()
@@ -79,11 +83,11 @@ class FocusOverlay:
             
         m = self.time_left // 60
         s = self.time_left % 60
-        text_str = f"FOCUS {m}m {s:02d}s"
+        text_str = f"{self.focus_text} {m}m {s:02d}s"
         
         self.canvas.delete("all")
         font = ("Segoe UI", 20, "bold")
-        cx, cy = 100, 20
+        cx, cy = 120, 20
         
         # Draw 1px dark red outline (glow)
         for dx in (-1, 0, 1):
