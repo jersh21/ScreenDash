@@ -1,7 +1,7 @@
 # ScreenDash
 <img width="1005" height="917" alt="image" src="https://github.com/user-attachments/assets/4bc74ce3-5a18-4289-ba93-787d1c07da53" />
-
-ScreenDash is a lightweight system-tray application for Windows weighing at a total of 300 KB. 
+https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
+ScreenDash is one of the lightest-weight system-tray applications for Windows of all time, weighing in at around only 300 KB!
 It enables dynamic hotkey registration with two sets of recordable hotkeys for each feature to make window management incredibly fast and easy. 
 
 It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`) to grab window coordinates, calculate monitor bounds, and snap them cleanly. All code and image assets operate securely and locally.
