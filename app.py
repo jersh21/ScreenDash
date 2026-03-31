@@ -204,13 +204,6 @@ def minimize_window():
     hwnd = get_window_under_cursor()
     if hwnd:
         user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0)
-        time.sleep(0.1) # Give it 100ms to process politely
-        if not user32.IsIconic(hwnd) and user32.IsWindowVisible(hwnd):
-            # Avoid forcing WACUP to minimize as it causes floating titlebar artifacts
-            title = get_window_title(hwnd)
-            cls = get_window_class(hwnd)
-            if "WACUP" not in title and "Winamp" not in cls:
-                user32.ShowWindow(hwnd, SW_MINIMIZE)
 
 def maximize_window():
     hwnd = get_window_under_cursor()
@@ -263,14 +256,6 @@ def minimize_all_windows():
     user32.EnumWindows(cb, 0)
     for hwnd in hwnds:
         user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0)
-        
-    time.sleep(0.1) # Give them 100ms to process politely
-    for hwnd in hwnds:
-        if not user32.IsIconic(hwnd) and user32.IsWindowVisible(hwnd):
-            title = get_window_title(hwnd)
-            cls = get_window_class(hwnd)
-            if "WACUP" not in title and "Winamp" not in cls:
-                user32.ShowWindow(hwnd, SW_MINIMIZE)
 
 def gather_all_windows():
     pt = POINT()
