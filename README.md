@@ -4,7 +4,8 @@
 
 
 
-ScreenDash is a lightweight system-tray application for Windows that enables dynamic hotkey registration to make window management incredibly fast and easy. 
+ScreenDash is a lightweight system-tray application for Windows weighing at a total of 300 KB. 
+It has two sets of recordable hotkeys for each feature to make window management incredibly fast and easy. 
 
 It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`) to grab window coordinates, calculate monitor bounds, and snap them cleanly. All code and image assets operate securely and locally.
 
