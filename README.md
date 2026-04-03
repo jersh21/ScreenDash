@@ -1,21 +1,22 @@
 # ScreenDash
 <img width="1005" height="917" alt="image" src="https://github.com/user-attachments/assets/4bc74ce3-5a18-4289-ba93-787d1c07da53" />
 https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
-ScreenDash is one of the lightest-weight system-tray applications for Windows of all time, weighing in at around only 300 KB!
-It enables dynamic hotkey registration with two sets of recordable hotkeys for each feature to make window management incredibly fast and easy. 
+    ScreenDash is one of the lightest-weight system-tray applications for Windows of all time, weighing in at around only 300 KB!
 
-It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`) to grab window coordinates, calculate monitor bounds, and snap them cleanly. All code and image assets operate securely and locally.
+    Each feature comes with two sets of recordable hotkeys that can all be toggled on/off.
+You do not need to click a window to affect it with any feature. All actions affect the window that the mouse is under to save time and mouse clicks! Enjoy!
 
 **Absolutely Zero Networking:** The Python scripts (`app.py`, `settings.py`, etc.) do not use any internet or network libraries. It doesn't open any ports, host any server, or send any data anywhere.
+    It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`). All code and images generated locally and securely.
 
 ## Software Requirements
 ** IMPORTANT During PYTHON Installation make sure ADD TO PATH is checked (it should be on by default) **
 - **Python 3.10** or higher 
 - **pystray**: Creates the system tray icon so the app can run silently.
-- **pynput**: Detects global mouse scrolling and middle-click events.
-- **keyboard**: Listens for and registers your global keyboard shortcuts.
-- **Pillow**: Powers generating and loading the icon logo images.
-- **customtkinter**: Builds the modern dark-themed Settings window.
+- **pynput**: Global mouse scrolling and middle-click events.
+- **keyboard**: Global keyboard shortcut register.
+- **Pillow**: Generating and loading the icon logo images.
+- **customtkinter**: Builds the Settings window.
 
 ## Installation
 1. Ensure Python 3.10+ is installed on your Windows machine.
@@ -30,20 +31,21 @@ It directly hooks into the native Windows operating system API (via `ctypes.wind
 ## Uninstallation
 1. **Stop the App**: Right-click the ScreenDash icon in your system tray and select "Quit".
 2. **Remove from Startup**: If you installed the startup shortcut, press `Win + R`, type `shell:startup`, and press Enter. Delete the `ScreenDash.lnk` file inside.
-3. **Delete Files**: You can now safely delete the entire folder and its configuration files.
+3. **Delete Files**: Delete the entire folder and its configuration files.
 
 ## Features & Hotkeys
-ScreenDash supports customizable hotkeys for the following actions:
-- Move window to top right
-- Move window to next monitor
+ScreenDash supports customizable hotkeys for the following features:
 - Minimize / Maximize / Close window
 - Minimize all windows
 - Restore minimized windows
 - Move window to left half / right half
-- Gather all windows 
+- Move window to the next monitor
+- Gather all windows (my favorite)
+- Move window to top right
 
----
-
+## Side note => 
+    This app may not affect notoriously buggy applications like "WACUP", and it may be unable to affect or act as normal with higher privalege apps open like the "Windows Task Manager". This is by Microsoft's design called User Interface Privilege Isolation (UIPI) system.
+   
 ## Developer Notes & Changelog
 
 **Latest Fixes:** Last updated 2026-03-29
