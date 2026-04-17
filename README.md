@@ -1,10 +1,10 @@
 # ScreenDash
 <img width="1005" height="917" alt="image" src="https://github.com/user-attachments/assets/4bc74ce3-5a18-4289-ba93-787d1c07da53" />
 https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
-    ScreenDash is one of the lightest-weight system-tray applications for Windows of all time, weighing in at around only 300 KB!
+    ScreenDash is one of the lightest-weight system-tray applications for Windows of all time!
 
-    Each feature comes with two sets of recordable hotkeys that can all be toggled on/off.
-You do not need to click a window to affect it with any feature. All actions affect the window that the mouse is under to save time and mouse clicks! Enjoy!
+    Each feature comes with two sets of recordable hotkeys that can all be toggled.
+** All features affect the window that the mouse is hovering over to save time and mouse clicks! Awesome!
 
 **Absolutely Zero Networking:** The Python scripts (`app.py`, `settings.py`, etc.) do not use any internet or network libraries. It doesn't open any ports, host any server, or send any data anywhere.
     It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`). All code and images generated locally and securely.
@@ -43,12 +43,14 @@ ScreenDash supports customizable hotkeys for the following features:
 - Gather all windows (my favorite)
 - Move window to top right
 
-## Side note => 
+## Side note
     This app may not affect notoriously buggy applications like "WACUP", and it may be unable to affect or act as normal with higher privalege apps open like the "Windows Task Manager". This is by Microsoft's design called User Interface Privilege Isolation (UIPI) system.
+    For faster load times I run the app at login using Task Schedular. (if you do this you may have to remove the app from the shell startup if you notice a duplicate).
    
 ## Developer Notes & Changelog
 
-**Latest Fixes:** Last updated 2026-03-29
+**Latest Fixes:** Last updated 2026-04-17
+- Fixed a key press bug that made the app believe the alt key was being held down while it is not.
 - Update: Now utilizing WM_SYSCOMMAND messages (specifically SC_MINIMIZE, WM_CLOSE, SC_RESTORE, and SC_MAXIMIZE) for a broader scope of window management.
 - Bug fix: ScreenDash wasn't closing properly in Spanish mode due to a change in the title of the Settings window. updated quit_app() function to fix it.
 - Added language toggle feature (English / Spanish).
