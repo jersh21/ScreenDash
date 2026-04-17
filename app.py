@@ -323,9 +323,15 @@ def quit_app(icon=None, item=None):
 # Mouse listener handling
 def get_modifiers():
     mods = []
-    for m in ['ctrl', 'alt', 'shift', 'windows']:
-        if keyboard.is_pressed(m):
-            mods.append(m)
+    # Use GetAsyncKeyState for real-time hardware state, bypassing keyboard hook state issues
+    if user32.GetAsyncKeyState(0x11) & 0x8000:
+        mods.append('ctrl')
+    if user32.GetAsyncKeyState(0x12) & 0x8000:
+        mods.append('alt')
+    if user32.GetAsyncKeyState(0x10) & 0x8000:
+        mods.append('shift')
+    if (user32.GetAsyncKeyState(0x5B) & 0x8000) or (user32.GetAsyncKeyState(0x5C) & 0x8000):
+        mods.append('windows')
     return mods
 
 def exec_action(action_name):
