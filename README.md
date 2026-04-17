@@ -54,6 +54,7 @@ ScreenDash supports customizable hotkeys for the following features:
 ## Developer Notes & Changelog
 
 **Latest Fixes:** Last updated 2026-04-17
+- Improved close window reliability.
 - Fixed a key press bug that made the app believe the alt key was being held down while it is not.
 - Update: Now utilizing WM_SYSCOMMAND messages (specifically SC_MINIMIZE, WM_CLOSE, SC_RESTORE, and SC_MAXIMIZE) for a broader scope of window management.
 - Bug fix: ScreenDash wasn't closing properly in Spanish mode due to a change in the title of the Settings window. updated quit_app() function to fix it.

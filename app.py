@@ -213,7 +213,7 @@ def maximize_window():
 def close_window():
     hwnd = get_window_under_cursor()
     if hwnd:
-        user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_CLOSE, 0)
+        user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
 
 def restore_all_minimized():
     hwnds = []
