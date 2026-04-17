@@ -45,9 +45,9 @@ ScreenDash supports customizable hotkeys for the following features:
 
 ## Side note
     This app may not affect notoriously buggy applications like "WACUP", 
-and it may be unable to affect or act as normal with higher privalege apps open 
-like the "Windows Task Manager". This is by Microsoft's design called 
-User Interface Privilege Isolation (UIPI) system.
+    and it may be unable to affect or act as normal with higher privalege apps open 
+    like the "Windows Task Manager". This is by Microsoft's design called 
+    User Interface Privilege Isolation (UIPI) system.
     For faster load times I run the app at login using Task Schedular. 
     (if you do this you may have to remove the app from the shell startup if you notice a duplicate).
    
