@@ -309,7 +309,7 @@ class SettingsApp(ctk.CTk):
         self.render_rows()
             
         self.btn_frame_bottom = ctk.CTkFrame(self, fg_color="transparent")
-        self.btn_frame_bottom.pack(pady=20)
+        self.btn_frame_bottom.pack(pady=(5, 10))
         
         self.save_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("APPLY"), command=self.save_config, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"))
         self.save_btn.pack(side="left", padx=10)
@@ -317,11 +317,14 @@ class SettingsApp(ctk.CTk):
         self.close_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("Close"), command=self.on_closing, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), fg_color="gray40", hover_color="gray30")
         self.close_btn.pack(side="left", padx=10)
         
-        self.info_label = ctk.CTkLabel(self, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="lightgray")
-        self.info_label.pack(pady=(0, 2))
+        self.labels_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.labels_frame.pack(pady=(0, 10))
         
-        self.warning_label = ctk.CTkLabel(self, text=tr("Mouse button BACK and FORWARD can be buggy as hotkeys."), text_color="#FF5A5A")
-        self.warning_label.pack(pady=(0, 10))
+        self.info_label = ctk.CTkLabel(self.labels_frame, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="lightgray")
+        self.info_label.pack(side="left", padx=(0, 5))
+        
+        self.warning_label = ctk.CTkLabel(self.labels_frame, text=tr("Mouse button BACK and FORWARD can be buggy as hotkeys."), text_color="#FF5A5A")
+        self.warning_label.pack(side="left")
         
         # Clean up lock file if window is closed during recording
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
