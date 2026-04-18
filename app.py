@@ -413,11 +413,12 @@ def exec_action(action_name):
         mapping[action_name]()
 
 def check_mouse_hotkey(hotkey_str):
+    matched = False
     for act, hk in G_CONFIG.get("hotkeys", {}).items():
-        if hk == hotkey_str:
+        if hk == hotkey_str and G_CONFIG.get("enabled", {}).get(act, True):
             exec_action(act)
-            return True
-    return False
+            matched = True
+    return matched
 
 G_SUPPRESSED_BUTTONS = set()
 
