@@ -271,9 +271,7 @@ class SettingsApp(ctk.CTk):
         )
         self.lang_switch.pack(side="right", padx=10)
         
-        self.title_label = ctk.CTkLabel(self, text=tr("Windows Hotkey Configuration"), font=ctk.CTkFont(size=14, weight="bold"))
-        self.title_label.pack(pady=(0, 15))
-        
+
         self.scroll_frame = ctk.CTkScrollableFrame(self)
         self.scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
@@ -286,11 +284,11 @@ class SettingsApp(ctk.CTk):
             ("Close Window", "close_window", "alt_close", "ctrl+shift+x", "alt+mouse_middle"),
             ("Restore Minimized Windows", "restore_all_minimized", "alt_restore", "ctrl+shift+r", "ctrl+alt+scroll_up"),
             ("Minimize All Windows", "minimize_all", "alt_minimize_all", "ctrl+shift+m", "ctrl+alt+scroll_down"),
+            ("Mouse Click", "mouse_click", "alt_mouse_click", "", ""),
+            ("Right Mouse Click", "right_mouse_click", "alt_right_mouse_click", "", ""),
             ("Move Left Half", "move_left_half", "alt_move_left", "ctrl+windows+left", "alt+scroll_left"),
             ("Move Right Half", "move_right_half", "alt_move_right", "ctrl+windows+right", "alt+scroll_right"),
-            ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g"),
-            ("Mouse Click", "mouse_click", "alt_mouse_click", "", ""),
-            ("Right Mouse Click", "right_mouse_click", "alt_right_mouse_click", "", "")
+            ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g")
         ]
         
         # Construct exact order
@@ -418,7 +416,6 @@ class SettingsApp(ctk.CTk):
         self.title(tr("ScreenDash Settings"))
         self.master_switch.configure(text=tr("Enable ScreenDash"))
         self.master_focus_switch.configure(text=tr("Enable Focus Mode (30m)"))
-        self.title_label.configure(text=tr("Windows Hotkey Configuration"))
         self.save_btn.configure(text=tr("APPLY"))
         self.close_btn.configure(text=tr("Close"))
         self.info_label.configure(text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."))

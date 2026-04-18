@@ -20,7 +20,7 @@
         "alt_gather_windows": "ctrl+alt+g",
         "minimize_all": "ctrl+shift+m",
         "alt_minimize_all": "ctrl+alt+scroll_down",
-        "mouse_click": "alt+mouse_x1",
+        "mouse_click": "ctrl+shift+scroll_down",
         "alt_mouse_click": "",
         "right_mouse_click": "ctrl+shift+p",
         "alt_right_mouse_click": ""
@@ -28,7 +28,7 @@
     "enabled": {
         "move_top_right": true,
         "move_to_next_monitor": true,
-        "minimize_window": true,
+        "minimize_window": false,
         "maximize_window": true,
         "close_window": true,
         "restore_all_minimized": true,
@@ -47,9 +47,9 @@
         "minimize_all": true,
         "alt_minimize_all": true,
         "mouse_click": true,
-        "alt_mouse_click": true,
+        "alt_mouse_click": false,
         "right_mouse_click": true,
-        "alt_right_mouse_click": true
+        "alt_right_mouse_click": false
     },
     "master_enable": true,
     "order": [
@@ -60,11 +60,11 @@
         "close_window",
         "gather_all_windows",
         "restore_all_minimized",
-        "move_left_half",
-        "move_right_half",
         "minimize_all",
         "mouse_click",
-        "right_mouse_click"
+        "right_mouse_click",
+        "move_left_half",
+        "move_right_half"
     ],
     "focus_mode": false,
     "lang": "en"
