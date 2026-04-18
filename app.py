@@ -257,6 +257,36 @@ def minimize_all_windows():
     for hwnd in hwnds:
         user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0)
 
+def _do_mouse_click():
+    time.sleep(0.05) # Give hook time to return
+    for mod in ['ctrl', 'alt', 'shift', 'windows']:
+        if keyboard.is_pressed(mod):
+            try: keyboard.release(mod)
+            except Exception: pass
+                
+    time.sleep(0.02)
+    user32.mouse_event(0x0002, 0, 0, 0, 0) # LEFTDOWN
+    time.sleep(0.03)
+    user32.mouse_event(0x0004, 0, 0, 0, 0) # LEFTUP
+
+def mouse_click_action():
+    threading.Thread(target=_do_mouse_click, daemon=True).start()
+
+def _do_right_mouse_click():
+    time.sleep(0.05)
+    for mod in ['ctrl', 'alt', 'shift', 'windows']:
+        if keyboard.is_pressed(mod):
+            try: keyboard.release(mod)
+            except Exception: pass
+                
+    time.sleep(0.02)
+    user32.mouse_event(0x0008, 0, 0, 0, 0) # RIGHTDOWN
+    time.sleep(0.03)
+    user32.mouse_event(0x0010, 0, 0, 0, 0) # RIGHTUP
+
+def right_mouse_click_action():
+    threading.Thread(target=_do_right_mouse_click, daemon=True).start()
+
 def gather_all_windows():
     pt = POINT()
     user32.GetCursorPos(ctypes.byref(pt))
@@ -362,7 +392,11 @@ def exec_action(action_name):
         "move_right_half": lambda: _move_window("right_half"),
         "alt_move_right": lambda: _move_window("right_half"),
         "gather_all_windows": gather_all_windows,
-        "alt_gather_windows": gather_all_windows
+        "alt_gather_windows": gather_all_windows,
+        "mouse_click": mouse_click_action,
+        "alt_mouse_click": mouse_click_action,
+        "right_mouse_click": right_mouse_click_action,
+        "alt_right_mouse_click": right_mouse_click_action
     }
     if action_name in mapping:
         mapping[action_name]()

@@ -36,7 +36,9 @@ ES_DICT = {
     "Minimize All Windows": "Minimizar Todas las Ventanas",
     "Move Left Half": "Mover Mitad Izquierda",
     "Move Right Half": "Mover Mitad Derecha",
-    "Gather All Windows": "Reunir Todas las Ventanas"
+    "Gather All Windows": "Reunir Todas las Ventanas",
+    "Mouse Click": "Clic del Ratón",
+    "Right Mouse Click": "Clic Derecho del Ratón"
 }
 
 CURRENT_LANG = "en"
@@ -285,7 +287,9 @@ class SettingsApp(ctk.CTk):
             ("Minimize All Windows", "minimize_all", "alt_minimize_all", "ctrl+shift+m", "ctrl+alt+scroll_down"),
             ("Move Left Half", "move_left_half", "alt_move_left", "ctrl+windows+left", "alt+scroll_left"),
             ("Move Right Half", "move_right_half", "alt_move_right", "ctrl+windows+right", "alt+scroll_right"),
-            ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g")
+            ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g"),
+            ("Mouse Click", "mouse_click", "alt_mouse_click", "", ""),
+            ("Right Mouse Click", "right_mouse_click", "alt_right_mouse_click", "", "")
         ]
         
         # Construct exact order
