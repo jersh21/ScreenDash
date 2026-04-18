@@ -257,32 +257,43 @@ def minimize_all_windows():
     for hwnd in hwnds:
         user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0)
 
-def _do_mouse_click():
+class MOUSEINPUT(ctypes.Structure):
+    _fields_ = [('dx', ctypes.c_long), ('dy', ctypes.c_long), ('mouseData', ctypes.c_ulong), ('dwFlags', ctypes.c_ulong), ('time', ctypes.c_ulong), ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong))]
+
+class INPUT_I(ctypes.Union):
+    _fields_ = [('mi', MOUSEINPUT)]
+
+class INPUT(ctypes.Structure):
+    _fields_ = [('type', ctypes.c_ulong), ('ii', INPUT_I)]
+
+def _send_click(down_flag, up_flag):
     time.sleep(0.05) # Give hook time to return
     for mod in ['ctrl', 'alt', 'shift', 'windows']:
         if keyboard.is_pressed(mod):
             try: keyboard.release(mod)
             except Exception: pass
-                
-    time.sleep(0.02)
-    user32.mouse_event(0x0002, 0, 0, 0, 0) # LEFTDOWN
-    time.sleep(0.03)
-    user32.mouse_event(0x0004, 0, 0, 0, 0) # LEFTUP
+            
+    time.sleep(0.05)
+    
+    # Send DOWN and UP atomically using SendInput array
+    inputs = (INPUT * 2)()
+    
+    inputs[0].type = 0 # INPUT_MOUSE
+    inputs[0].ii.mi = MOUSEINPUT(0, 0, 0, down_flag, 0, None)
+    
+    inputs[1].type = 0 # INPUT_MOUSE
+    inputs[1].ii.mi = MOUSEINPUT(0, 0, 0, up_flag, 0, None)
+    
+    user32.SendInput(2, ctypes.byref(inputs), ctypes.sizeof(INPUT))
+
+def _do_mouse_click():
+    _send_click(0x0002, 0x0004)
 
 def mouse_click_action():
     threading.Thread(target=_do_mouse_click, daemon=True).start()
 
 def _do_right_mouse_click():
-    time.sleep(0.05)
-    for mod in ['ctrl', 'alt', 'shift', 'windows']:
-        if keyboard.is_pressed(mod):
-            try: keyboard.release(mod)
-            except Exception: pass
-                
-    time.sleep(0.02)
-    user32.mouse_event(0x0008, 0, 0, 0, 0) # RIGHTDOWN
-    time.sleep(0.03)
-    user32.mouse_event(0x0010, 0, 0, 0, 0) # RIGHTUP
+    _send_click(0x0008, 0x0010)
 
 def right_mouse_click_action():
     threading.Thread(target=_do_right_mouse_click, daemon=True).start()
