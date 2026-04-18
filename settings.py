@@ -25,7 +25,8 @@ ES_DICT = {
     "Alternate / Mouse Actions": "Acciones de Ratón / Alternativas",
     "APPLY": "APLICAR",
     "Close": "Cerrar",
-    "Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action.": "Nota: Haga clic en 'Grabar' para vincular combinaciones de teclado o ratón. 'Tecla 2' funciona como un atajo alternativo.",
+    "Note: Click 'Record' to bind standard keyboard or mouse combinations.": "Nota: Haga clic en 'Grabar' para vincular combinaciones de teclado o ratón.",
+    "Mouse button BACK and FORWARD can be buggy as hotkeys.": "Los botones ATRÁS y ADELANTE del ratón pueden tener errores como atajos.",
     "Saved Dash": "Dash Guardado",
     "Move Top Right": "Mover Arriba a la Derecha",
     "Move to Next Monitor": "Mover al Siguiente Monitor",
@@ -316,8 +317,11 @@ class SettingsApp(ctk.CTk):
         self.close_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("Close"), command=self.on_closing, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), fg_color="gray40", hover_color="gray30")
         self.close_btn.pack(side="left", padx=10)
         
-        self.info_label = ctk.CTkLabel(self, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action."), text_color="lightgray")
-        self.info_label.pack(pady=(0, 10))
+        self.info_label = ctk.CTkLabel(self, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="lightgray")
+        self.info_label.pack(pady=(0, 2))
+        
+        self.warning_label = ctk.CTkLabel(self, text=tr("Mouse button BACK and FORWARD can be buggy as hotkeys."), text_color="#FF5A5A")
+        self.warning_label.pack(pady=(0, 10))
         
         # Clean up lock file if window is closed during recording
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -414,7 +418,8 @@ class SettingsApp(ctk.CTk):
         self.title_label.configure(text=tr("Windows Hotkey Configuration"))
         self.save_btn.configure(text=tr("APPLY"))
         self.close_btn.configure(text=tr("Close"))
-        self.info_label.configure(text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations. 'Hotkey 2' acts as an alternate mapping per action."))
+        self.info_label.configure(text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."))
+        self.warning_label.configure(text=tr("Mouse button BACK and FORWARD can be buggy as hotkeys."))
 
     def on_lang_toggle(self):
         global CURRENT_LANG
