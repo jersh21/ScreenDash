@@ -10,7 +10,7 @@ https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
     It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`). All code and images generated locally and securely.
 
 ## Software Requirements
-** IMPORTANT During PYTHON Installation make sure ADD TO PATH is checked (it should be on by default) **
+**IMPORTANT During PYTHON Installation make sure ADD TO PATH is checked (it should be on by default)**
 - **Python 3.10** or higher 
 - **pystray**: Creates the system tray icon so the app can run silently.
 - **pynput**: Global mouse scrolling and middle-click events.
