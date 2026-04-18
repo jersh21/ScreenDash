@@ -19,7 +19,11 @@
         "gather_all_windows": "ctrl+shift+g",
         "alt_gather_windows": "ctrl+alt+g",
         "minimize_all": "ctrl+shift+m",
-        "alt_minimize_all": "ctrl+alt+scroll_down"
+        "alt_minimize_all": "ctrl+alt+scroll_down",
+        "mouse_click": "alt+mouse_x1",
+        "alt_mouse_click": "",
+        "right_mouse_click": "ctrl+shift+p",
+        "alt_right_mouse_click": ""
     },
     "enabled": {
         "move_top_right": true,
@@ -41,7 +45,11 @@
         "gather_all_windows": true,
         "alt_gather_windows": true,
         "minimize_all": true,
-        "alt_minimize_all": true
+        "alt_minimize_all": true,
+        "mouse_click": true,
+        "alt_mouse_click": true,
+        "right_mouse_click": true,
+        "alt_right_mouse_click": true
     },
     "master_enable": true,
     "order": [
@@ -54,7 +62,9 @@
         "restore_all_minimized",
         "move_left_half",
         "move_right_half",
-        "minimize_all"
+        "minimize_all",
+        "mouse_click",
+        "right_mouse_click"
     ],
     "focus_mode": false,
     "lang": "en"
