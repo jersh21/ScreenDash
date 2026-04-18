@@ -419,6 +419,46 @@ def check_mouse_hotkey(hotkey_str):
             return True
     return False
 
+G_SUPPRESSED_BUTTONS = set()
+
+def win32_event_filter(msg, data):
+    global G_SUPPRESSED_BUTTONS
+    if data.flags & 1:
+        return True
+        
+    btn_name = None
+    is_down = False
+    
+    if msg == 0x0201: btn_name, is_down = 'mouse_left', True
+    elif msg == 0x0202: btn_name, is_down = 'mouse_left', False
+    elif msg == 0x0204: btn_name, is_down = 'mouse_right', True
+    elif msg == 0x0205: btn_name, is_down = 'mouse_right', False
+    elif msg == 0x0207: btn_name, is_down = 'mouse_middle', True
+    elif msg == 0x0208: btn_name, is_down = 'mouse_middle', False
+    elif msg == 0x020B:
+        btn_name = 'mouse_x1' if (data.mouseData >> 16) == 1 else 'mouse_x2'
+        is_down = True
+    elif msg == 0x020C:
+        btn_name = 'mouse_x1' if (data.mouseData >> 16) == 1 else 'mouse_x2'
+        is_down = False
+
+    if btn_name:
+        if is_down:
+            mods = get_modifiers()
+            keys = mods + [btn_name]
+            hotkey_str = '+'.join(keys)
+            if check_mouse_hotkey(hotkey_str):
+                G_SUPPRESSED_BUTTONS.add(btn_name)
+                return False
+        else:
+            if btn_name in G_SUPPRESSED_BUTTONS:
+                G_SUPPRESSED_BUTTONS.remove(btn_name)
+                return False
+    return True
+
+def on_click(x, y, button, pressed):
+    pass
+
 def on_scroll(x, y, dx, dy):
     mods = get_modifiers()
     if dy > 0: dir_name = 'scroll_up'
@@ -429,13 +469,6 @@ def on_scroll(x, y, dx, dy):
     
     keys = mods + [dir_name]
     check_mouse_hotkey('+'.join(keys))
-
-def on_click(x, y, button, pressed):
-    if pressed:
-        mods = get_modifiers()
-        btn_name = str(button).replace('Button.', 'mouse_')
-        keys = mods + [btn_name]
-        check_mouse_hotkey('+'.join(keys))
 
 def apply_hotkeys():
     try:
@@ -521,7 +554,8 @@ def main():
     
     listener = mouse.Listener(
         on_scroll=on_scroll,
-        on_click=on_click)
+        on_click=on_click,
+        win32_event_filter=win32_event_filter)
     listener.start()
 
     watcher_thread = threading.Thread(target=config_watcher, daemon=True)
