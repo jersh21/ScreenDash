@@ -1,7 +1,6 @@
 # ScreenDash
 <img width="1630" height="1017" alt="image" src="https://github.com/user-attachments/assets/9ebed705-9774-4df4-b0c5-858ae6192902" />
 
-https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
 
 ## ScreenDash is one of the lightest-weight system-tray applications for Windows of all time!
 
