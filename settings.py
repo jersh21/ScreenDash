@@ -228,7 +228,7 @@ class BackgroundSelectorWindow(ctk.CTkToplevel):
         for i in range(cols):
             self.scroll_frame.grid_columnconfigure(i, weight=1)
             
-        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AngelFire_backgrounds")
+        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backgrounds")
         
         row, col = 0, 0
 
@@ -382,7 +382,7 @@ class SettingsApp(ctk.CTk):
         self.bg_controls_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.bg_controls_frame.pack(anchor="w", padx=30, pady=(0, 10))
         
-        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AngelFire_backgrounds")
+        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backgrounds")
         self.bg_options = ["None"]
         if os.path.exists(bg_dir):
             for f in os.listdir(bg_dir):
@@ -625,7 +625,7 @@ class SettingsApp(ctk.CTk):
             if hasattr(self, 'labels_frame'): self.labels_frame.configure(fg_color="transparent")
             return
             
-        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AngelFire_backgrounds")
+        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backgrounds")
         img_path = os.path.join(bg_dir, self.bg_image_name)
         
         if os.path.exists(img_path):
