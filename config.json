@@ -67,5 +67,7 @@
         "move_right_half"
     ],
     "focus_mode": false,
-    "lang": "en"
+    "lang": "en",
+    "bg_image": "flagston.jpg",
+    "bg_opacity": 0.86
 }

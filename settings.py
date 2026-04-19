@@ -6,6 +6,7 @@ import os
 import sys
 import threading
 from pynput import mouse
+from PIL import Image
 
 # Ensure working directory is set to file's directory so it finds config properly if launched from elsewhere
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -36,10 +37,11 @@ ES_DICT = {
     "Restore Minimized Windows": "Restaurar Ventanas Minimizadas",
     "Minimize All Windows": "Minimizar Todas las Ventanas",
     "Move Left Half": "Mover Mitad Izquierda",
-    "Move Right Half": "Mover Mitad Derecha",
-    "Gather All Windows": "Reunir Todas las Ventanas",
-    "Mouse Click": "Clic del Ratón",
-    "Right Mouse Click": "Clic Derecho del Ratón"
+    "Right Mouse Click": "Clic Derecho del Ratón",
+    "Background": "Fondo",
+    "Opacity": "Opacidad",
+    "None": "Ninguno",
+    "Browse Backgrounds...": "Explorar Fondos..."
 }
 
 CURRENT_LANG = "en"
@@ -210,6 +212,94 @@ class DualHotkeyEntry(ctk.CTkFrame):
     def get_values(self):
         return (self.entry1.get().lower(), bool(self.checkbox1.get()), self.entry2.get().lower(), bool(self.checkbox2.get()))
 
+class BackgroundSelectorWindow(ctk.CTkToplevel):
+    def __init__(self, master, bg_options, current_bg, on_select_callback):
+        super().__init__(master)
+        self.title("Background Gallery")
+        self.geometry("600x600")
+        self.transient(master)
+        self.grab_set()
+        
+        self.scroll_frame = ctk.CTkScrollableFrame(self)
+        self.scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Grid config
+        cols = 3
+        for i in range(cols):
+            self.scroll_frame.grid_columnconfigure(i, weight=1)
+            
+        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AngelFire_backgrounds")
+        
+        row, col = 0, 0
+
+        # Add "None" option explicitly at the very beginning
+        frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        frame.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+        
+        def make_cmd_none():
+            return lambda: self.on_select("None", on_select_callback)
+            
+        border_color = "#3B8ED0" if current_bg in ["None", "Ninguno", ""] else "gray30"
+        border_width = 3 if current_bg in ["None", "Ninguno", ""] else 1
+        
+        btn = ctk.CTkButton(
+            frame, text="None",
+            command=make_cmd_none(),
+            width=100, height=100,
+            border_width=border_width, border_color=border_color,
+            fg_color="gray20", hover_color="gray30"
+        )
+        btn.pack()
+        
+        col += 1
+
+        for bg_name in bg_options:
+            if bg_name == "None":
+                continue
+                
+            frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+            frame.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+            
+            img_obj = None
+            bg_path = os.path.join(bg_dir, bg_name)
+            if os.path.exists(bg_path):
+                try:
+                    from PIL import Image
+                    pil_img = Image.open(bg_path)
+                    pil_img.thumbnail((100, 100))
+                    img_obj = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(100, 100))
+                except Exception as e:
+                    print(f"Error loading background image {bg_path}: {e}")
+            
+            # Button for the image
+            def make_cmd(val=bg_name):
+                return lambda: self.on_select(val, on_select_callback)
+                
+            border_color = "#3B8ED0" if bg_name == current_bg else "gray30"
+            border_width = 3 if bg_name == current_bg else 1
+            
+            btn = ctk.CTkButton(
+                frame, image=img_obj, text="" if img_obj else bg_name,
+                command=make_cmd(),
+                width=100, height=100,
+                border_width=border_width, border_color=border_color,
+                fg_color="transparent", hover_color="gray20"
+            )
+            btn.pack()
+            
+            lbl = ctk.CTkLabel(frame, text=bg_name, font=ctk.CTkFont(size=11))
+            lbl.pack()
+            
+            col += 1
+            if col >= cols:
+                col = 0
+                row += 1
+        
+    def on_select(self, val, callback):
+        callback(val)
+        self.destroy()
+
+
 class SettingsApp(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -234,6 +324,23 @@ class SettingsApp(ctk.CTk):
         
         self.entries = {}
         
+        self.bg_colors_map = {}
+        colors_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bg_colors.json")
+        if os.path.exists(colors_file):
+            try:
+                import json
+                with open(colors_file, "r") as f:
+                    self.bg_colors_map = json.load(f)
+            except Exception:
+                pass
+                
+        self.bg_image_name = self.config.get("bg_image", "None")
+        self.bg_opacity = self.config.get("bg_opacity", 0.1)
+        
+        self.bg_label = ctk.CTkLabel(self, text="")
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.bg_label.lower()
+        
         self.top_switches_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.top_switches_frame.pack(fill="x", padx=30, pady=(15, 5))
         
@@ -253,7 +360,7 @@ class SettingsApp(ctk.CTk):
         self.master_focus_var = ctk.BooleanVar(value=self.config.get("focus_mode", False))
         self.master_focus_switch = ctk.CTkSwitch(
             self.top_switches_frame, 
-            text=tr("Enable Focus Mode (30m)"), 
+            text=tr("Enable Focus Timer (30m)"), 
             variable=self.master_focus_var,
             font=ctk.CTkFont(weight="bold", size=16),
             switch_width=44,
@@ -271,6 +378,34 @@ class SettingsApp(ctk.CTk):
         )
         self.lang_switch.pack(side="right", padx=10)
         
+
+        self.bg_controls_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.bg_controls_frame.pack(anchor="w", padx=30, pady=(0, 10))
+        
+        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AngelFire_backgrounds")
+        self.bg_options = ["None"]
+        if os.path.exists(bg_dir):
+            for f in os.listdir(bg_dir):
+                if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                    self.bg_options.append(f)
+                    
+        self.bg_lbl = ctk.CTkLabel(self.bg_controls_frame, text=tr("Background"), font=ctk.CTkFont(weight="bold"))
+        self.bg_lbl.pack(side="left", padx=(0, 10))
+        
+        self.bg_dropdown = ctk.CTkButton(
+            self.bg_controls_frame, text=tr("Browse Backgrounds..."), command=self.open_bg_gallery, width=150,
+            fg_color="#3B8ED0", hover_color="#36719F"
+        )
+        self.bg_dropdown.pack(side="left", padx=(0, 10))
+        
+        self.opacity_lbl = ctk.CTkLabel(self.bg_controls_frame, text=tr("Opacity"), font=ctk.CTkFont(weight="bold"))
+        self.opacity_lbl.pack(side="left", padx=(10, 10))
+        
+        self.opacity_slider = ctk.CTkSlider(
+            self.bg_controls_frame, from_=0.0, to=1.0, command=self.on_opacity_change, width=100
+        )
+        self.opacity_slider.set(self.bg_opacity)
+        self.opacity_slider.pack(side="left", padx=(0, 10))
 
         self.scroll_frame = ctk.CTkScrollableFrame(self)
         self.scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
@@ -318,10 +453,10 @@ class SettingsApp(ctk.CTk):
         self.labels_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.labels_frame.pack(pady=(0, 10))
         
-        self.info_label = ctk.CTkLabel(self.labels_frame, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="lightgray")
+        self.info_label = ctk.CTkLabel(self.labels_frame, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="white", font=ctk.CTkFont(size=14))
         self.info_label.pack(side="left", padx=(0, 5))
         
-        self.warning_label = ctk.CTkLabel(self.labels_frame, text=tr("Mouse button hotkeys are being updated for stability."), text_color="#FF5A5A")
+        self.warning_label = ctk.CTkLabel(self.labels_frame, text=tr("Mouse button hotkeys are being updated for stability."), text_color="white", font=ctk.CTkFont(size=14))
         self.warning_label.pack(side="left")
         
         # Clean up lock file if window is closed during recording
@@ -330,6 +465,7 @@ class SettingsApp(ctk.CTk):
         # Apply initial visual colors to match current master toggle state
         self.update_colors(self.master_enable_var.get())
         self.update_focus_colors(self.master_focus_var.get())
+        self.apply_background()
 
     def render_rows(self):
         for frame in self.row_frames:
@@ -415,11 +551,14 @@ class SettingsApp(ctk.CTk):
     def update_static_translations(self):
         self.title(tr("ScreenDash Settings"))
         self.master_switch.configure(text=tr("Enable ScreenDash"))
-        self.master_focus_switch.configure(text=tr("Enable Focus Mode (30m)"))
+        self.master_focus_switch.configure(text=tr("Enable Focus Timer (30m)"))
         self.save_btn.configure(text=tr("APPLY"))
         self.close_btn.configure(text=tr("Close"))
         self.info_label.configure(text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."))
         self.warning_label.configure(text=tr("Mouse button hotkeys are being updated for stability."))
+        self.bg_lbl.configure(text=tr("Background"))
+        self.opacity_lbl.configure(text=tr("Opacity"))
+        self.bg_dropdown.configure(text=tr("Browse Backgrounds..."))
 
     def on_lang_toggle(self):
         global CURRENT_LANG
@@ -440,6 +579,100 @@ class SettingsApp(ctk.CTk):
         self.config["focus_mode"] = is_focused
         config_manager.save_config(self.config)
         self.update_focus_colors(is_focused)
+
+    def open_bg_gallery(self):
+        BackgroundSelectorWindow(self, self.bg_options, self.bg_image_name, self.on_bg_change)
+
+    def on_bg_change(self, choice):
+        if choice in ["None", "Ninguno"]:
+            self.bg_image_name = "None"
+        else:
+            self.bg_image_name = choice
+        self.config["bg_image"] = self.bg_image_name
+        config_manager.save_config(self.config)
+        self.apply_background()
+
+    def on_opacity_change(self, value):
+        self.bg_opacity = float(value)
+        self.config["bg_opacity"] = self.bg_opacity
+        config_manager.save_config(self.config)
+        self.apply_background()
+
+    def blend_color(self, hex_color, ratio):
+        if hex_color == "transparent": return "transparent"
+        try:
+            hex_color = hex_color.lstrip('#')
+            r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+            
+            # Blend with #242424 (36, 36, 36)
+            br = int(36 * (1 - ratio) + r * ratio)
+            bg = int(36 * (1 - ratio) + g * ratio)
+            bb = int(36 * (1 - ratio) + b * ratio)
+            
+            # Ensure values are clamped
+            br, bg, bb = min(255, max(0, br)), min(255, max(0, bg)), min(255, max(0, bb))
+            return f"#{br:02x}{bg:02x}{bb:02x}"
+        except Exception:
+            return "transparent"
+
+    def apply_background(self):
+        if self.bg_image_name == "None" or not self.bg_image_name:
+            self.bg_label.configure(image="")
+            self.top_switches_frame.configure(fg_color="transparent")
+            self.bg_controls_frame.configure(fg_color="transparent")
+            self.scroll_frame.configure(fg_color="transparent")
+            if hasattr(self, 'btn_frame_bottom'): self.btn_frame_bottom.configure(fg_color="transparent")
+            if hasattr(self, 'labels_frame'): self.labels_frame.configure(fg_color="transparent")
+            return
+            
+        bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AngelFire_backgrounds")
+        img_path = os.path.join(bg_dir, self.bg_image_name)
+        
+        if os.path.exists(img_path):
+            try:
+                pil_img = Image.open(img_path).convert("RGBA")
+                
+                dom_hex = self.bg_colors_map.get(self.bg_image_name, "transparent")
+                if dom_hex != "transparent":
+                    scroll_hex = self.blend_color(dom_hex, 0.15)
+                    btn_hex = self.blend_color(dom_hex, 0.50)
+                    
+                    self.top_switches_frame.configure(fg_color=scroll_hex)
+                    self.bg_controls_frame.configure(fg_color=scroll_hex)
+                    self.scroll_frame.configure(fg_color=scroll_hex)
+                    if hasattr(self, 'btn_frame_bottom'): self.btn_frame_bottom.configure(fg_color=btn_hex)
+                    if hasattr(self, 'labels_frame'): self.labels_frame.configure(fg_color=btn_hex)
+                
+                # Apply opacity
+                alpha = pil_img.split()[3]
+                alpha = alpha.point(lambda p: p * self.bg_opacity)
+                pil_img.putalpha(alpha)
+                
+                # Tile for main background using a large resolution to support window maximization
+                bg_w, bg_h = 4000, 3000
+                bg_tiled = Image.new("RGBA", (bg_w, bg_h))
+                w, h = pil_img.size
+                for y in range(0, bg_h, h):
+                    for x in range(0, bg_w, w):
+                        bg_tiled.paste(pil_img, (x, y))
+                        
+                self.bg_ctk_img = ctk.CTkImage(light_image=bg_tiled, dark_image=bg_tiled, size=(bg_w, bg_h))
+                self.bg_label.configure(image=self.bg_ctk_img)
+            except Exception as e:
+                print(f"Error loading background image: {e}")
+                self.bg_label.configure(image="")
+                self.top_switches_frame.configure(fg_color="transparent")
+                self.bg_controls_frame.configure(fg_color="transparent")
+                self.scroll_frame.configure(fg_color="transparent")
+                if hasattr(self, 'btn_frame_bottom'): self.btn_frame_bottom.configure(fg_color="transparent")
+                if hasattr(self, 'labels_frame'): self.labels_frame.configure(fg_color="transparent")
+        else:
+            self.bg_label.configure(image="")
+            self.top_switches_frame.configure(fg_color="transparent")
+            self.bg_controls_frame.configure(fg_color="transparent")
+            self.scroll_frame.configure(fg_color="transparent")
+            if hasattr(self, 'btn_frame_bottom'): self.btn_frame_bottom.configure(fg_color="transparent")
+            if hasattr(self, 'labels_frame'): self.labels_frame.configure(fg_color="transparent")
 
     def on_master_toggle(self):
         is_enabled = self.master_enable_var.get()

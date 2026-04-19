@@ -14,3 +14,7 @@ venv/
 # config.json
 *_backup.png
 *_backup.ico
+
+# Local generator scripts
+generate_colors.py
+scratch/

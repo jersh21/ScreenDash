@@ -18,7 +18,11 @@ DEFAULT_CONFIG = {
         "alt_next_monitor": "ctrl+alt+mouse_middle",
         "alt_close": "alt+mouse_middle",
         "gather_all_windows": "ctrl+shift+g",
-        "alt_gather_windows": "ctrl+alt+g"
+        "alt_gather_windows": "ctrl+alt+g",
+        "mouse_click": "",
+        "alt_mouse_click": "",
+        "right_mouse_click": "",
+        "alt_right_mouse_click": ""
     },
     "enabled": {
         "move_top_right": True,
@@ -34,7 +38,11 @@ DEFAULT_CONFIG = {
         "alt_next_monitor": True,
         "alt_close": True,
         "gather_all_windows": True,
-        "alt_gather_windows": True
+        "alt_gather_windows": True,
+        "mouse_click": False,
+        "alt_mouse_click": False,
+        "right_mouse_click": False,
+        "alt_right_mouse_click": False
     },
     "focus_mode": False
 }
