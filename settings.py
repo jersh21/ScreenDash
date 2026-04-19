@@ -128,7 +128,7 @@ class ToolTip(object):
         self.tw.wm_overrideredirect(True)
         self.tw.wm_geometry("+%d+%d" % (x, y))
         label = ctk.CTkLabel(self.tw, text=self.text, justify='left',
-                       fg_color="#333333", text_color="white", corner_radius=6)
+                       fg_color="#333333", text_color="white", corner_radius=0)
         label.pack(ipadx=5, ipady=2)
         self.tw.attributes('-topmost', True)
 
@@ -215,21 +215,22 @@ class HotkeyRecorder:
 class DualHotkeyEntry(ctk.CTkFrame):
     def __init__(self, master, label_text, val1, en1, val2, en2, on_up=None, on_down=None, **kwargs):
         super().__init__(master, **kwargs)
+        self.configure(corner_radius=0)
         self.grid_columnconfigure(4, weight=1)
         self.grid_columnconfigure(8, weight=1)
         
-        self.btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.btn_frame = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         self.btn_frame.grid(row=0, column=0, padx=(5, 0), pady=5)
         
         self.up_btn = ctk.CTkButton(
             self.btn_frame, text="▲", width=20, height=20, font=ctk.CTkFont(size=10), command=on_up,
-            fg_color="white", text_color="#1F6AA5", hover_color="gray90"
+            fg_color="white", text_color="#1F6AA5", hover_color="gray90", corner_radius=0
         )
         self.up_btn.pack(pady=(0, 2))
         
         self.down_btn = ctk.CTkButton(
             self.btn_frame, text="▼", width=20, height=20, font=ctk.CTkFont(size=10), command=on_down,
-            fg_color="white", text_color="#1F6AA5", hover_color="gray90"
+            fg_color="white", text_color="#1F6AA5", hover_color="gray90", corner_radius=0
         )
         self.down_btn.pack()
         
@@ -238,7 +239,7 @@ class DualHotkeyEntry(ctk.CTkFrame):
         self.label.grid(row=0, column=1, padx=10, pady=10)
         
         # Hotkey 1 Checkbox
-        self.checkbox1 = ctk.CTkCheckBox(self, text="", width=20, onvalue=True, offvalue=False)
+        self.checkbox1 = ctk.CTkCheckBox(self, text="", width=20, onvalue=True, offvalue=False, corner_radius=0)
         self.checkbox1.grid(row=0, column=2, padx=(10, 5), pady=10)
         if en1:
             self.checkbox1.select()
@@ -246,20 +247,20 @@ class DualHotkeyEntry(ctk.CTkFrame):
             self.checkbox1.deselect()
         
         # Hotkey 1 Entry
-        self.entry1 = ctk.CTkEntry(self, placeholder_text=tr("e.g. ctrl+shift+a"), width=180)
+        self.entry1 = ctk.CTkEntry(self, placeholder_text=tr("e.g. ctrl+shift+a"), width=180, corner_radius=0)
         self.entry1.insert(0, val1.upper())
         self.entry1.grid(row=0, column=3, sticky="ew", padx=10, pady=10)
         
         # Hotkey 1 Record
-        self.record_btn1 = ctk.CTkButton(self, text=tr("Record"), width=60, command=lambda: self.start_recording(1))
+        self.record_btn1 = ctk.CTkButton(self, text=tr("Record"), width=60, command=lambda: self.start_recording(1), corner_radius=0)
         self.record_btn1.grid(row=0, column=4, padx=(5, 10), pady=10)
         
         # Splitter / Separator visual 
-        self.sep = ctk.CTkFrame(self, width=2, height=20, fg_color="gray50")
+        self.sep = ctk.CTkFrame(self, width=2, height=20, fg_color="gray50", corner_radius=0)
         self.sep.grid(row=0, column=5, padx=10, pady=10)
 
         # Hotkey 2 Checkbox
-        self.checkbox2 = ctk.CTkCheckBox(self, text="", width=20, onvalue=True, offvalue=False)
+        self.checkbox2 = ctk.CTkCheckBox(self, text="", width=20, onvalue=True, offvalue=False, corner_radius=0)
         self.checkbox2.grid(row=0, column=6, padx=(10, 5), pady=10)
         if en2:
             self.checkbox2.select()
@@ -267,12 +268,12 @@ class DualHotkeyEntry(ctk.CTkFrame):
             self.checkbox2.deselect()
         
         # Hotkey 2 Entry
-        self.entry2 = ctk.CTkEntry(self, placeholder_text=tr("Alternate / Mouse Actions"), width=180)
+        self.entry2 = ctk.CTkEntry(self, placeholder_text=tr("Alternate / Mouse Actions"), width=180, corner_radius=0)
         self.entry2.insert(0, val2.upper())
         self.entry2.grid(row=0, column=7, sticky="ew", padx=10, pady=10)
         
         # Hotkey 2 Record
-        self.record_btn2 = ctk.CTkButton(self, text=tr("Record"), width=60, command=lambda: self.start_recording(2))
+        self.record_btn2 = ctk.CTkButton(self, text=tr("Record"), width=60, command=lambda: self.start_recording(2), corner_radius=0)
         self.record_btn2.grid(row=0, column=8, padx=(5, 10), pady=10)
         
         self.recorder = None
@@ -307,7 +308,7 @@ class BackgroundSelectorWindow(ctk.CTkToplevel):
         self.transient(master)
         self.grab_set()
         
-        self.scroll_frame = ctk.CTkScrollableFrame(self)
+        self.scroll_frame = ctk.CTkScrollableFrame(self, corner_radius=0)
         self.scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
         # Grid config
@@ -320,7 +321,7 @@ class BackgroundSelectorWindow(ctk.CTkToplevel):
         row, col = 0, 0
 
         # Add "None" option explicitly at the very beginning
-        frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent", corner_radius=0)
         frame.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
         
         def make_cmd_none():
@@ -334,7 +335,7 @@ class BackgroundSelectorWindow(ctk.CTkToplevel):
             command=make_cmd_none(),
             width=100, height=100,
             border_width=border_width, border_color=border_color,
-            fg_color="gray20", hover_color="gray30"
+            fg_color="gray20", hover_color="gray30", corner_radius=0
         )
         btn.pack()
         
@@ -344,7 +345,7 @@ class BackgroundSelectorWindow(ctk.CTkToplevel):
             if bg_name == "None":
                 continue
                 
-            frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+            frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent", corner_radius=0)
             frame.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
             
             img_obj = None
@@ -370,7 +371,7 @@ class BackgroundSelectorWindow(ctk.CTkToplevel):
                 command=make_cmd(),
                 width=100, height=100,
                 border_width=border_width, border_color=border_color,
-                fg_color="transparent", hover_color="gray20"
+                fg_color="transparent", hover_color="gray20", corner_radius=0
             )
             btn.pack()
             
@@ -428,7 +429,7 @@ class SettingsApp(ctk.CTk):
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
         self.bg_label.lower()
         
-        self.top_switches_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.top_switches_frame = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         self.top_switches_frame.pack(fill="x", padx=30, pady=(15, 5))
         
         self.master_enable_var = ctk.BooleanVar(value=self.config.get("master_enable", True))
@@ -466,7 +467,7 @@ class SettingsApp(ctk.CTk):
         self.lang_switch.pack(side="right", padx=10)
         
 
-        self.bg_controls_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.bg_controls_frame = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         self.bg_controls_frame.pack(anchor="w", padx=30, pady=(0, 10))
         
         bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backgrounds")
@@ -481,7 +482,7 @@ class SettingsApp(ctk.CTk):
         
         self.bg_dropdown = ctk.CTkButton(
             self.bg_controls_frame, text=tr("Browse Backgrounds..."), command=self.open_bg_gallery, width=150,
-            fg_color="#3B8ED0", hover_color="#36719F"
+            fg_color="#3B8ED0", hover_color="#36719F", corner_radius=0
         )
         self.bg_dropdown.pack(side="left", padx=(0, 10))
         
@@ -489,7 +490,7 @@ class SettingsApp(ctk.CTk):
         self.opacity_lbl.pack(side="left", padx=(10, 10))
         
         self.opacity_slider = ctk.CTkSlider(
-            self.bg_controls_frame, from_=0.0, to=1.0, command=self.on_opacity_change, width=100
+            self.bg_controls_frame, from_=0.0, to=1.0, command=self.on_opacity_change, width=100, corner_radius=0
         )
         self.opacity_slider.set(self.bg_opacity)
         self.opacity_slider.pack(side="left", padx=(0, 10))
@@ -509,7 +510,7 @@ class SettingsApp(ctk.CTk):
         self.vol_btn = ctk.CTkButton(
             self.bg_controls_frame, text="🔊", width=40, height=40,
             command=lambda: __import__('subprocess').Popen(["cmd", "/c", "start", "ms-settings:apps-volume"]),
-            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30)
+            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30), corner_radius=0
         )
         self.vol_btn.pack(side="left", padx=(10, 5))
         ToolTip(self.vol_btn, tr("Volume Mixer"))
@@ -517,12 +518,12 @@ class SettingsApp(ctk.CTk):
         self.startup_btn = ctk.CTkButton(
             self.bg_controls_frame, text="🚀", width=40, height=40,
             command=lambda: __import__('subprocess').Popen(["explorer", "shell:startup"]),
-            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30)
+            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30), corner_radius=0
         )
         self.startup_btn.pack(side="left", padx=(5, 10))
         ToolTip(self.startup_btn, tr("Startup Folder"))
 
-        self.scroll_frame = ctk.CTkScrollableFrame(self)
+        self.scroll_frame = ctk.CTkScrollableFrame(self, corner_radius=0)
         self.scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         # Dual bindings definitions (DisplayName, Key1, Key2, Default1, Default2)
@@ -557,16 +558,16 @@ class SettingsApp(ctk.CTk):
         self.row_frames = []
         self.render_rows()
             
-        self.btn_frame_bottom = ctk.CTkFrame(self, fg_color="transparent")
+        self.btn_frame_bottom = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         self.btn_frame_bottom.pack(pady=(5, 10))
         
-        self.save_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("APPLY"), command=self.save_config, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"))
+        self.save_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("APPLY"), command=self.save_config, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), corner_radius=0)
         self.save_btn.pack(side="left", padx=10)
         
-        self.close_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("Close"), command=self.on_closing, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), fg_color="gray40", hover_color="gray30")
+        self.close_btn = ctk.CTkButton(self.btn_frame_bottom, text=tr("Close"), command=self.on_closing, height=40, width=120, font=ctk.CTkFont(size=14, weight="bold"), fg_color="gray40", hover_color="gray30", corner_radius=0)
         self.close_btn.pack(side="left", padx=10)
         
-        self.labels_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.labels_frame = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         self.labels_frame.pack(pady=(0, 10))
         
         self.info_label = ctk.CTkLabel(self.labels_frame, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="white", font=ctk.CTkFont(size=14))
@@ -596,20 +597,20 @@ class SettingsApp(ctk.CTk):
             
         self.row_frames = []
         
-        self.header_row = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        self.header_row = ctk.CTkFrame(self.scroll_frame, fg_color="transparent", corner_radius=0)
         self.header_row.pack(fill="x", pady=(0, 5), padx=5)
         self.header_row.grid_columnconfigure(4, weight=1)
         self.header_row.grid_columnconfigure(8, weight=1)
         
-        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=0, padx=(5,0))
+        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent", corner_radius=0).grid(row=0, column=0, padx=(5,0))
         ctk.CTkLabel(self.header_row, text="", width=170).grid(row=0, column=1, padx=10)
-        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=2, padx=(10,5))
+        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent", corner_radius=0).grid(row=0, column=2, padx=(10,5))
         
         l1 = ctk.CTkLabel(self.header_row, text=tr("Hotkey 1"), font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
         l1.grid(row=0, column=3, sticky="w", padx=10)
         
-        ctk.CTkFrame(self.header_row, width=2, height=0, fg_color="transparent").grid(row=0, column=5, padx=10)
-        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent").grid(row=0, column=6, padx=(10,5))
+        ctk.CTkFrame(self.header_row, width=2, height=0, fg_color="transparent", corner_radius=0).grid(row=0, column=5, padx=10)
+        ctk.CTkFrame(self.header_row, width=20, height=0, fg_color="transparent", corner_radius=0).grid(row=0, column=6, padx=(10,5))
         
         l2 = ctk.CTkLabel(self.header_row, text=tr("Hotkey 2"), font=ctk.CTkFont(weight="bold", size=14), text_color="gray70")
         l2.grid(row=0, column=7, sticky="w", padx=10)
@@ -631,7 +632,7 @@ class SettingsApp(ctk.CTk):
             entry = DualHotkeyEntry(
                 self.scroll_frame, tr(name), val1, en1, val2, en2, 
                 on_up=make_cb(idx, -1), on_down=make_cb(idx, 1),
-                fg_color=bg_color, corner_radius=6
+                fg_color=bg_color, corner_radius=0
             )
             
             if idx == 0:
@@ -648,8 +649,42 @@ class SettingsApp(ctk.CTk):
         if new_idx < 0 or new_idx >= len(self.active_mapping):
             return
             
+        # 1. Save current GUI state of all rows
+        for frame in self.row_frames:
+            k1, k2 = frame.mapping_keys
+            v1, e1, v2, e2 = frame.get_values()
+            self.hotkeys[k1], self.enabled[k1] = v1, e1
+            self.hotkeys[k2], self.enabled[k2] = v2, e2
+
+        # 2. Swap in the underlying model
         self.active_mapping[idx], self.active_mapping[new_idx] = self.active_mapping[new_idx], self.active_mapping[idx]
-        self.render_rows()
+        
+        # 3. Fast-update the data in the existing widgets instead of destroying them
+        for i, frame in enumerate(self.row_frames):
+            name, key1, key2, def1, def2 = self.active_mapping[i]
+            
+            val1 = self.hotkeys.get(key1, "")
+            if not val1: val1 = def1
+            en1 = self.enabled.get(key1, True)
+            
+            val2 = self.hotkeys.get(key2, "")
+            if not val2: val2 = def2
+            en2 = self.enabled.get(key2, True)
+            
+            frame.label.configure(text=tr(name))
+            frame.mapping_keys = (key1, key2)
+            
+            frame.entry1.delete(0, 'end')
+            frame.entry1.insert(0, val1.upper())
+            if en1: frame.checkbox1.select()
+            else: frame.checkbox1.deselect()
+            
+            frame.entry2.delete(0, 'end')
+            frame.entry2.insert(0, val2.upper())
+            if en2: frame.checkbox2.select()
+            else: frame.checkbox2.deselect()
+            
+        # Optional: ensure visual colors are up-to-date
         self.update_colors(self.master_enable_var.get())
 
     def update_colors(self, is_enabled):
@@ -843,7 +878,7 @@ class SettingsApp(ctk.CTk):
         screen_height = self.winfo_screenheight()
         toast.geometry(f"160x50+{screen_width - 200}+{screen_height - 120}")
         
-        lbl = ctk.CTkLabel(toast, text=tr("Saved Dash"), font=ctk.CTkFont(size=16, weight="bold"), fg_color="#2ba64e", text_color="white", corner_radius=8)
+        lbl = ctk.CTkLabel(toast, text=tr("Saved Dash"), font=ctk.CTkFont(size=16, weight="bold"), fg_color="#2ba64e", text_color="white", corner_radius=0)
         lbl.pack(expand=True, fill="both")
         
         # Close only the toast popup after 2 seconds
