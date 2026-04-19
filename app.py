@@ -218,7 +218,7 @@ def close_window():
 def restore_all_minimized():
     hwnds = []
     def callback(hwnd, ctx):
-        if user32.IsIconic(hwnd) and user32.IsWindowVisible(hwnd):
+        if is_valid_app_window(hwnd, require_iconic=True, require_visible=True):
             hwnds.append(hwnd)
         return True
     
@@ -234,16 +234,29 @@ def get_window_title(hwnd):
     user32.GetWindowTextW(hwnd, buf, length + 1)
     return buf.value
 
-def is_main_window(hwnd):
-    if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
+def is_valid_app_window(hwnd, require_iconic=False, require_visible=True):
+    if require_visible and not user32.IsWindowVisible(hwnd):
         return False
+    if require_iconic and not user32.IsIconic(hwnd):
+        return False
+    if not require_iconic and user32.IsIconic(hwnd):
+        return False
+        
     title = get_window_title(hwnd)
     if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings", "Configuración de ScreenDash"]:
         return False
+        
+    cls = get_window_class(hwnd)
+    if cls in ["Shell_TrayWnd", "NotifyIconOverflowWindow", "Progman", "WorkerW", "Windows.UI.Core.CoreWindow"]:
+        return False
+        
     # Exclude dialogs/popups owned by an existing main window
     if user32.GetWindow(hwnd, 4) != 0: 
         return False
     return True
+
+def is_main_window(hwnd):
+    return is_valid_app_window(hwnd, require_iconic=False, require_visible=True)
 
 def minimize_all_windows():
     hwnds = []
@@ -314,12 +327,7 @@ def gather_all_windows():
     
     hwnds = []
     def callback(hwnd, ctx):
-        if not user32.IsWindowVisible(hwnd):
-            return True
-        title = get_window_title(hwnd)
-        if not title or title in ["Program Manager", "Settings", "FocusOverlay", "ScreenDash Settings", "Configuración de ScreenDash"]:
-            return True
-        if user32.GetWindow(hwnd, 4) != 0: 
+        if not is_valid_app_window(hwnd, require_iconic=False, require_visible=True) and not is_valid_app_window(hwnd, require_iconic=True, require_visible=True):
             return True
         hwnds.append(hwnd)
         return True

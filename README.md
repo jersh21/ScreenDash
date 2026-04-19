@@ -4,11 +4,20 @@ https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
 
 ## ScreenDash is one of the lightest-weight system-tray applications for Windows of all time!
 
+## Features & Hotkeys
+ScreenDash supports customizable hotkeys for the following features:
+- Absolutely Zero Networking (It doesn't open any ports, host any server, or send any data anywhere).
+- Minimize / Maximize / Close window
+- Minimize all windows
+- Restore minimized windows
+- Move window to left half / right half
+- Move window to the next monitor
+- Gather all windows (my favorite)
+- Move window to top right
+
+## Side note
     Each feature comes with two sets of recordable hotkeys that can all be toggled.
 ** All features affect the window that the mouse is hovering over to save time and mouse clicks! Awesome!
-
-**Absolutely Zero Networking:** The Python scripts (`app.py`, `settings.py`, etc.) do not use any internet or network libraries. It doesn't open any ports, host any server, or send any data anywhere.
-    It directly hooks into the native Windows operating system API (via `ctypes.windll.user32`). All code and images generated locally and securely.
 
 ## Software Requirements
 **IMPORTANT During PYTHON Installation make sure ADD TO PATH is checked (it should be on by default)**
@@ -34,15 +43,6 @@ https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
 2. **Remove from Startup**: If you installed the startup shortcut, press `Win + R`, type `shell:startup`, and press Enter. Delete the `ScreenDash.lnk` file inside.
 3. **Delete Files**: Delete the entire folder and its configuration files.
 
-## Features & Hotkeys
-ScreenDash supports customizable hotkeys for the following features:
-- Minimize / Maximize / Close window
-- Minimize all windows
-- Restore minimized windows
-- Move window to left half / right half
-- Move window to the next monitor
-- Gather all windows (my favorite)
-- Move window to top right
 
 ## Side note
     This app may not affect notoriously buggy applications like "WACUP", 
@@ -55,6 +55,7 @@ ScreenDash supports customizable hotkeys for the following features:
 ## Developer Notes & Changelog
 
 **Latest Fixes:** Last updated 2026-04-18
+- Adjusted gather all and restore functions to work better.
 - Added background-image feature.
 - Improved close window reliability.
 - Added Left-click and Right-click features, but they are a little buggy.
