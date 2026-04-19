@@ -53,24 +53,25 @@ ScreenDash supports customizable hotkeys for the following features:
    
 ## Developer Notes & Changelog
 
-**Latest Fixes:** Last updated 2026-04-17
+**Latest Fixes:** Last updated 2026-04-18
+- Added background-image feature.
 - Improved close window reliability.
+- Added Left-click and Right-click features, but they are a little buggy.
 - Fixed a key press bug that made the app believe the alt key was being held down while it is not.
 - Update: Now utilizing WM_SYSCOMMAND messages (specifically SC_MINIMIZE, WM_CLOSE, SC_RESTORE, and SC_MAXIMIZE) for a broader scope of window management.
 - Bug fix: ScreenDash wasn't closing properly in Spanish mode due to a change in the title of the Settings window. updated quit_app() function to fix it.
 - Added language toggle feature (English / Spanish).
-- Added focus mode toggle feature with 30 minute unminimizable timer. Timer turns off within 5 seconds of app close since it will inherit a unique Process ID from ScreenDash.
+- Added focus timer.
 - Improved Quit behavior.
-- Increased font size. Reduced Record button's margins. Increased hotkey input's width. Added shortcut 1 and 2 text at the top for clarity.
-- Bug fix  internal EnumWindows loop error. Fixed by gathering all the window IDs first then sequencing through them.
+- Improved UI.
+- Bug fix (internal EnumWindows loop error). Fixed by gathering all the window IDs first then sequencing through them.
 - Added minimize all feature.
-- Ensure new features are added to config.json and settings.py codebase in order to work.
 - Added ALREADY_EXISTS to prevent multiple instances of settings windows.
 - Ensured all hotkeys are unhooked when the `master_enable` state transitions to `False`.
 - Fixed `exec_action()` function where the `action_name` variable was not being passed correctly.
 - Resolved an issue with `get_window_under_cursor` where Windows taskbar elements (`Shell_TrayWnd`, `NotifyIconOverflowWindow`, `Progman`, `WorkerW`) would accidentally get minimized or disappear.
 - Added "Gather All Windows" button to the settings window.
-- Added ability to re-organize hotkeys in the settings window.
+- Added re-organize hotkeys feature.
 - Fixed the hotkey recording function by disabling the listening of hotkeys prior to recording a new one.
 - Added a master toggle to entirely disable the app's hotkeys.
 - Wrapped the startup `keyboard.unhook_all_hotkeys()` call in a try-except block to fix an `AttributeError` from missing config files.
