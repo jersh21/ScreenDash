@@ -5,7 +5,7 @@ https://www.youtube.com/watch?v=Je2Sgmmo-jY&pp=0gcJCdkKAYcqIYzv
 ## ScreenDash is one of the lightest-weight system-tray applications for Windows of all time!
 
 ## Features & Hotkeys
-ScreenDash supports customizable hotkeys for the following features:
+ScreenDash supports customizable hotkeys and has the following features:
 - Absolutely Zero Networking (It doesn't open any ports, host any server, or send any data anywhere).
 - Minimize / Maximize / Close window
 - Minimize all windows
