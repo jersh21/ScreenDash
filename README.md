@@ -54,7 +54,8 @@ ScreenDash supports customizable hotkeys and has the following features:
    
 ## Developer Notes & Changelog
 
-**Latest Fixes:** Last updated 2026-04-18
+**Latest Fixes:** Last updated 2026-04-19
+- Added toggle for taskbar auto-hiding and a link for volume mixer/startup folder.
 - Adjusted gather all and restore functions to work better.
 - Added background-image feature.
 - Improved close window reliability.

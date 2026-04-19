@@ -23,7 +23,9 @@
         "mouse_click": "ctrl+shift+scroll_up",
         "alt_mouse_click": "",
         "right_mouse_click": "ctrl+shift+p",
-        "alt_right_mouse_click": ""
+        "alt_right_mouse_click": "",
+        "toggle_taskbar": "",
+        "alt_toggle_taskbar": ""
     },
     "enabled": {
         "move_top_right": true,
@@ -49,7 +51,9 @@
         "mouse_click": false,
         "alt_mouse_click": false,
         "right_mouse_click": false,
-        "alt_right_mouse_click": false
+        "alt_right_mouse_click": false,
+        "toggle_taskbar": true,
+        "alt_toggle_taskbar": true
     },
     "master_enable": true,
     "order": [
@@ -64,10 +68,11 @@
         "mouse_click",
         "right_mouse_click",
         "move_left_half",
-        "move_right_half"
+        "move_right_half",
+        "toggle_taskbar"
     ],
     "focus_mode": false,
     "lang": "en",
-    "bg_image": "21.jpg",
-    "bg_opacity": 0.81
+    "bg_image": "34.jpg",
+    "bg_opacity": 1.0
 }

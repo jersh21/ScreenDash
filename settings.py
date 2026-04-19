@@ -7,8 +7,45 @@ import sys
 import threading
 from pynput import mouse
 from PIL import Image
+import ctypes
+from ctypes import wintypes
 
-# Ensure working directory is set to file's directory so it finds config properly if launched from elsewhere
+ABM_GETSTATE = 0x00000004
+ABM_SETSTATE = 0x0000000A
+ABS_AUTOHIDE = 0x00000001
+
+class RECT(ctypes.Structure):
+    _fields_ = [
+        ('left', wintypes.LONG),
+        ('top', wintypes.LONG),
+        ('right', wintypes.LONG),
+        ('bottom', wintypes.LONG)
+    ]
+
+class APPBARDATA(ctypes.Structure):
+    _fields_ = [
+        ('cbSize', wintypes.DWORD),
+        ('hWnd', wintypes.HWND),
+        ('uCallbackMessage', wintypes.UINT),
+        ('uEdge', wintypes.UINT),
+        ('rc', RECT),
+        ('lParam', wintypes.LPARAM)
+    ]
+
+def get_taskbar_state() -> int:
+    abd = APPBARDATA()
+    abd.cbSize = ctypes.sizeof(APPBARDATA)
+    return ctypes.windll.shell32.SHAppBarMessage(ABM_GETSTATE, ctypes.byref(abd))
+
+def set_taskbar_autohide(autohide: bool):
+    current_state = get_taskbar_state()
+    is_autohide = bool(current_state & ABS_AUTOHIDE)
+    if is_autohide != autohide:
+        new_state = current_state ^ ABS_AUTOHIDE
+        abd = APPBARDATA()
+        abd.cbSize = ctypes.sizeof(APPBARDATA)
+        abd.lParam = new_state
+        ctypes.windll.shell32.SHAppBarMessage(ABM_SETSTATE, ctypes.byref(abd))# Ensure working directory is set to file's directory so it finds config properly if launched from elsewhere
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 LOCK_FILE = "recording.lock"
@@ -41,7 +78,11 @@ ES_DICT = {
     "Background": "Fondo",
     "Opacity": "Opacidad",
     "None": "Ninguno",
-    "Browse Backgrounds...": "Explorar Fondos..."
+    "Browse Backgrounds...": "Explorar Fondos...",
+    "Auto-hide Taskbar": "Ocultar automáticamente la barra de tareas",
+    "Toggle Taskbar": "Alternar barra de tareas",
+    "Volume Mixer": "Mezclador de volumen",
+    "Startup Folder": "Carpeta de inicio"
 }
 
 CURRENT_LANG = "en"
@@ -50,6 +91,52 @@ def tr(text):
     if CURRENT_LANG == "es":
         return ES_DICT.get(text, text)
     return text
+
+class ToolTip(object):
+    def __init__(self, widget, text='widget info'):
+        self.waittime = 500
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.widget.bind("<ButtonPress>", self.leave)
+        self.id = None
+        self.tw = None
+
+    def enter(self, event=None):
+        self.schedule()
+
+    def leave(self, event=None):
+        self.unschedule()
+        self.hidetip()
+
+    def schedule(self):
+        self.unschedule()
+        self.id = self.widget.after(self.waittime, self.showtip)
+
+    def unschedule(self):
+        id = self.id
+        self.id = None
+        if id:
+            self.widget.after_cancel(id)
+
+    def showtip(self, event=None):
+        if self.tw: return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tw = ctk.CTkToplevel(self.widget)
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry("+%d+%d" % (x, y))
+        label = ctk.CTkLabel(self.tw, text=self.text, justify='left',
+                       fg_color="#333333", text_color="white", corner_radius=6)
+        label.pack(ipadx=5, ipady=2)
+        self.tw.attributes('-topmost', True)
+
+    def hidetip(self):
+        tw = self.tw
+        self.tw = None
+        if tw:
+            tw.destroy()
 
 class HotkeyRecorder:
     def __init__(self, callback):
@@ -407,6 +494,34 @@ class SettingsApp(ctk.CTk):
         self.opacity_slider.set(self.bg_opacity)
         self.opacity_slider.pack(side="left", padx=(0, 10))
 
+        # Add Taskbar Auto-hide Switch
+        self.taskbar_var = ctk.BooleanVar(value=bool(get_taskbar_state() & ABS_AUTOHIDE))
+        self.taskbar_switch = ctk.CTkSwitch(
+            self.bg_controls_frame,
+            text=tr("Auto-hide Taskbar"),
+            variable=self.taskbar_var,
+            font=ctk.CTkFont(weight="bold"),
+            command=self.on_taskbar_toggle
+        )
+        self.taskbar_switch.pack(side="left", padx=(20, 10))
+
+        # Shortcuts
+        self.vol_btn = ctk.CTkButton(
+            self.bg_controls_frame, text="🔊", width=40, height=40,
+            command=lambda: __import__('subprocess').Popen(["cmd", "/c", "start", "ms-settings:apps-volume"]),
+            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30)
+        )
+        self.vol_btn.pack(side="left", padx=(10, 5))
+        ToolTip(self.vol_btn, tr("Volume Mixer"))
+        
+        self.startup_btn = ctk.CTkButton(
+            self.bg_controls_frame, text="🚀", width=40, height=40,
+            command=lambda: __import__('subprocess').Popen(["explorer", "shell:startup"]),
+            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30)
+        )
+        self.startup_btn.pack(side="left", padx=(5, 10))
+        ToolTip(self.startup_btn, tr("Startup Folder"))
+
         self.scroll_frame = ctk.CTkScrollableFrame(self)
         self.scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
@@ -423,7 +538,8 @@ class SettingsApp(ctk.CTk):
             ("Right Mouse Click", "right_mouse_click", "alt_right_mouse_click", "", ""),
             ("Move Left Half", "move_left_half", "alt_move_left", "ctrl+windows+left", "alt+scroll_left"),
             ("Move Right Half", "move_right_half", "alt_move_right", "ctrl+windows+right", "alt+scroll_right"),
-            ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g")
+            ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g"),
+            ("Toggle Taskbar", "toggle_taskbar", "alt_toggle_taskbar", "", "")
         ]
         
         # Construct exact order
@@ -559,6 +675,8 @@ class SettingsApp(ctk.CTk):
         self.bg_lbl.configure(text=tr("Background"))
         self.opacity_lbl.configure(text=tr("Opacity"))
         self.bg_dropdown.configure(text=tr("Browse Backgrounds..."))
+        if hasattr(self, 'taskbar_switch'):
+            self.taskbar_switch.configure(text=tr("Auto-hide Taskbar"))
 
     def on_lang_toggle(self):
         global CURRENT_LANG
@@ -591,6 +709,10 @@ class SettingsApp(ctk.CTk):
         self.config["bg_image"] = self.bg_image_name
         config_manager.save_config(self.config)
         self.apply_background()
+
+    def on_taskbar_toggle(self):
+        is_autohide = self.taskbar_var.get()
+        set_taskbar_autohide(is_autohide)
 
     def on_opacity_change(self, value):
         self.bg_opacity = float(value)

@@ -35,6 +35,11 @@ GA_ROOT = 2
 # Monitor info constants
 MONITOR_DEFAULTTONEAREST = 2
 
+# Taskbar constants
+ABM_GETSTATE = 0x00000004
+ABM_SETSTATE = 0x0000000A
+ABS_AUTOHIDE = 0x00000001
+
 class POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
 
@@ -52,6 +57,16 @@ class MONITORINFO(ctypes.Structure):
         ('rcMonitor', RECT),
         ('rcWork', RECT),
         ('dwFlags', wintypes.DWORD)
+    ]
+
+class APPBARDATA(ctypes.Structure):
+    _fields_ = [
+        ('cbSize', wintypes.DWORD),
+        ('hWnd', wintypes.HWND),
+        ('uCallbackMessage', wintypes.UINT),
+        ('uEdge', wintypes.UINT),
+        ('rc', RECT),
+        ('lParam', wintypes.LPARAM)
     ]
 
 MonitorEnumProc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HMONITOR, wintypes.HDC, ctypes.POINTER(RECT), wintypes.LPARAM)
@@ -311,6 +326,14 @@ def _do_right_mouse_click():
 def right_mouse_click_action():
     threading.Thread(target=_do_right_mouse_click, daemon=True).start()
 
+def toggle_taskbar_autohide():
+    abd = APPBARDATA()
+    abd.cbSize = ctypes.sizeof(APPBARDATA)
+    current_state = ctypes.windll.shell32.SHAppBarMessage(ABM_GETSTATE, ctypes.byref(abd))
+    new_state = current_state ^ ABS_AUTOHIDE
+    abd.lParam = new_state
+    ctypes.windll.shell32.SHAppBarMessage(ABM_SETSTATE, ctypes.byref(abd))
+
 def gather_all_windows():
     pt = POINT()
     user32.GetCursorPos(ctypes.byref(pt))
@@ -415,7 +438,9 @@ def exec_action(action_name):
         "mouse_click": mouse_click_action,
         "alt_mouse_click": mouse_click_action,
         "right_mouse_click": right_mouse_click_action,
-        "alt_right_mouse_click": right_mouse_click_action
+        "alt_right_mouse_click": right_mouse_click_action,
+        "toggle_taskbar": toggle_taskbar_autohide,
+        "alt_toggle_taskbar": toggle_taskbar_autohide
     }
     if action_name in mapping:
         mapping[action_name]()
