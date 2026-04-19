@@ -20,7 +20,7 @@
         "alt_gather_windows": "ctrl+alt+g",
         "minimize_all": "ctrl+shift+m",
         "alt_minimize_all": "ctrl+alt+scroll_down",
-        "mouse_click": "ctrl+shift+scroll_down",
+        "mouse_click": "ctrl+shift+scroll_up",
         "alt_mouse_click": "",
         "right_mouse_click": "ctrl+shift+p",
         "alt_right_mouse_click": ""
@@ -46,9 +46,9 @@
         "alt_gather_windows": true,
         "minimize_all": true,
         "alt_minimize_all": true,
-        "mouse_click": true,
+        "mouse_click": false,
         "alt_mouse_click": false,
-        "right_mouse_click": true,
+        "right_mouse_click": false,
         "alt_right_mouse_click": false
     },
     "master_enable": true,

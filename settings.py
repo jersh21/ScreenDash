@@ -26,7 +26,7 @@ ES_DICT = {
     "APPLY": "APLICAR",
     "Close": "Cerrar",
     "Note: Click 'Record' to bind standard keyboard or mouse combinations.": "Nota: Haga clic en 'Grabar' para vincular combinaciones de teclado o ratón.",
-    "Mouse button BACK and FORWARD can be buggy as hotkeys.": "Los botones ATRÁS y ADELANTE del ratón pueden tener errores como atajos.",
+    "Mouse button hotkeys are being updated for stability.": "Los atajos de los botones del ratón se están actualizando para mayor estabilidad.",
     "Saved Dash": "Dash Guardado",
     "Move Top Right": "Mover Arriba a la Derecha",
     "Move to Next Monitor": "Mover al Siguiente Monitor",
@@ -321,7 +321,7 @@ class SettingsApp(ctk.CTk):
         self.info_label = ctk.CTkLabel(self.labels_frame, text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."), text_color="lightgray")
         self.info_label.pack(side="left", padx=(0, 5))
         
-        self.warning_label = ctk.CTkLabel(self.labels_frame, text=tr("Mouse button BACK and FORWARD can be buggy as hotkeys."), text_color="#FF5A5A")
+        self.warning_label = ctk.CTkLabel(self.labels_frame, text=tr("Mouse button hotkeys are being updated for stability."), text_color="#FF5A5A")
         self.warning_label.pack(side="left")
         
         # Clean up lock file if window is closed during recording
@@ -419,7 +419,7 @@ class SettingsApp(ctk.CTk):
         self.save_btn.configure(text=tr("APPLY"))
         self.close_btn.configure(text=tr("Close"))
         self.info_label.configure(text=tr("Note: Click 'Record' to bind standard keyboard or mouse combinations."))
-        self.warning_label.configure(text=tr("Mouse button BACK and FORWARD can be buggy as hotkeys."))
+        self.warning_label.configure(text=tr("Mouse button hotkeys are being updated for stability."))
 
     def on_lang_toggle(self):
         global CURRENT_LANG
