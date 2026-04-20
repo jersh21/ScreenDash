@@ -14,10 +14,8 @@ ScreenDash supports customizable hotkeys and has the following features:
 - Move window to the next monitor
 - Gather all windows (my favorite)
 - Move window to top right
-
-## Side note
-    Each feature comes with two sets of recordable hotkeys that can all be toggled.
-** All features affect the window that the mouse is hovering over to save time and mouse clicks! Awesome!
+  
+** All features affect the window (or monitor) that the mouse is hovering over to save time and mouse clicks! Awesome!
 
 ## Software Requirements
 **IMPORTANT During PYTHON Installation make sure ADD TO PATH is checked (it should be on by default)**
