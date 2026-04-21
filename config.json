@@ -25,7 +25,9 @@
         "right_mouse_click": "ctrl+shift+p",
         "alt_right_mouse_click": "",
         "toggle_taskbar": "",
-        "alt_toggle_taskbar": ""
+        "alt_toggle_taskbar": "",
+        "open_settings": "ctrl+shift+mouse_middle",
+        "alt_open_settings": ""
     },
     "enabled": {
         "move_top_right": true,
@@ -52,8 +54,10 @@
         "alt_mouse_click": false,
         "right_mouse_click": false,
         "alt_right_mouse_click": false,
-        "toggle_taskbar": true,
-        "alt_toggle_taskbar": true
+        "toggle_taskbar": false,
+        "alt_toggle_taskbar": false,
+        "open_settings": true,
+        "alt_open_settings": false
     },
     "master_enable": true,
     "order": [
@@ -69,10 +73,11 @@
         "right_mouse_click",
         "move_left_half",
         "move_right_half",
-        "toggle_taskbar"
+        "toggle_taskbar",
+        "open_settings"
     ],
     "focus_mode": false,
     "lang": "en",
-    "bg_image": "34.jpg",
+    "bg_image": "22.jpg",
     "bg_opacity": 1.0
 }

@@ -16,7 +16,7 @@ class FocusOverlay:
     def __init__(self):
         self.config = config_manager.load_config()
         self.lang = self.config.get("lang", "en")
-        self.focus_text = "ENFOQUE" if self.lang == "es" else "FOCUS"
+        self.focus_text = "ENFOQUE 🙏 time" if self.lang == "es" else "FOCUS 🙏 time"
         
         self.root = tk.Tk()
         self.root.title("FocusOverlay")
@@ -52,8 +52,8 @@ class FocusOverlay:
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         
-        # Estimate: width 240px, height 40px, positioned above the taskbar clock.
-        self.root.geometry(f"240x40+{screen_width - 250}+{screen_height - 90}")
+        # Estimate: width 320px, height 40px, positioned above the taskbar clock.
+        self.root.geometry(f"320x40+{screen_width - 330}+{screen_height - 90}")
 
         self.time_left = 30 * 60
         self.update_timer()
@@ -87,16 +87,16 @@ class FocusOverlay:
         
         self.canvas.delete("all")
         font = ("Segoe UI", 20, "bold")
-        cx, cy = 120, 20
+        cx, cy = 160, 20
         
-        # Draw 1px dark red outline (glow)
+        # Draw 1px indigo outline (glow)
         for dx in (-1, 0, 1):
             for dy in (-1, 0, 1):
                 if dx == 0 and dy == 0: continue
-                self.canvas.create_text(cx + dx, cy + dy, text=text_str, font=font, fill="darkred")
+                self.canvas.create_text(cx + dx, cy + dy, text=text_str, font=font, fill="indigo")
                 
-        # Draw main red text
-        self.canvas.create_text(cx, cy, text=text_str, font=font, fill="#FF4444")
+        # Draw main purple text
+        self.canvas.create_text(cx, cy, text=text_str, font=font, fill="#A020F0")
         
         self.time_left -= 1
         self.root.after(1000, self.update_timer)

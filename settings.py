@@ -53,7 +53,7 @@ LOCK_FILE = "recording.lock"
 ES_DICT = {
     "ScreenDash Settings": "Configuración de ScreenDash",
     "Enable ScreenDash": "Habilitar ScreenDash",
-    "Enable Focus Mode (30m)": "Habilitar Modo de Enfoque (30m)",
+    "Enable Focus Timer (30m)": "Habilitar Modo de Enfoque (30m)",
     "Windows Hotkey Configuration": "Configuración de Teclas Rápidas de Windows",
     "Hotkey 1": "Tecla 1",
     "Hotkey 2": "Tecla 2",
@@ -82,7 +82,9 @@ ES_DICT = {
     "Auto-hide Taskbar": "Ocultar automáticamente la barra de tareas",
     "Toggle Taskbar": "Alternar barra de tareas",
     "Volume Mixer": "Mezclador de volumen",
-    "Startup Folder": "Carpeta de inicio"
+    "Personalize Colors": "Personalizar colores",
+    "Startup Folder": "Carpeta de inicio",
+    "Open ScreenDash": "Abrir ScreenDash"
 }
 
 CURRENT_LANG = "en"
@@ -213,7 +215,7 @@ class HotkeyRecorder:
         self.finish('+'.join(keys))
 
 class DualHotkeyEntry(ctk.CTkFrame):
-    def __init__(self, master, label_text, val1, en1, val2, en2, on_up=None, on_down=None, **kwargs):
+    def __init__(self, master, label_text, val1, en1, val2, en2, on_up=None, on_down=None, label_color=None, **kwargs):
         super().__init__(master, **kwargs)
         self.configure(corner_radius=0)
         self.grid_columnconfigure(4, weight=1)
@@ -235,7 +237,7 @@ class DualHotkeyEntry(ctk.CTkFrame):
         self.down_btn.pack()
         
         # Label
-        self.label = ctk.CTkLabel(self, text=label_text, width=170, anchor="w", font=ctk.CTkFont(weight="bold"))
+        self.label = ctk.CTkLabel(self, text=label_text, width=170, anchor="w", font=ctk.CTkFont(weight="bold"), text_color=label_color)
         self.label.grid(row=0, column=1, padx=10, pady=10)
         
         # Hotkey 1 Checkbox
@@ -395,6 +397,10 @@ class SettingsApp(ctk.CTk):
         self.title(tr("ScreenDash Settings"))
         self.geometry("1000x880")
         
+        self.attributes('-topmost', True)
+        self.after(200, lambda: self.attributes('-topmost', False))
+        self.focus_force()
+        
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dash.ico")
         if os.path.exists(icon_path):
             self.iconbitmap(icon_path)
@@ -509,12 +515,20 @@ class SettingsApp(ctk.CTk):
         # Shortcuts
         self.vol_btn = ctk.CTkButton(
             self.bg_controls_frame, text="🔊", width=40, height=40,
-            command=lambda: __import__('subprocess').Popen(["cmd", "/c", "start", "ms-settings:apps-volume"]),
+            command=lambda: os.startfile("ms-settings:apps-volume"),
             fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30), corner_radius=0
         )
         self.vol_btn.pack(side="left", padx=(10, 5))
         ToolTip(self.vol_btn, tr("Volume Mixer"))
         
+        self.lighting_btn = ctk.CTkButton(
+            self.bg_controls_frame, text="🎨", width=40, height=40,
+            command=lambda: os.startfile("ms-settings:personalization-colors"),
+            fg_color="gray30", hover_color="gray40", font=ctk.CTkFont(size=30), corner_radius=0
+        )
+        self.lighting_btn.pack(side="left", padx=(5, 5))
+        ToolTip(self.lighting_btn, tr("Personalize Colors"))
+
         self.startup_btn = ctk.CTkButton(
             self.bg_controls_frame, text="🚀", width=40, height=40,
             command=lambda: __import__('subprocess').Popen(["explorer", "shell:startup"]),
@@ -540,7 +554,8 @@ class SettingsApp(ctk.CTk):
             ("Move Left Half", "move_left_half", "alt_move_left", "ctrl+windows+left", "alt+scroll_left"),
             ("Move Right Half", "move_right_half", "alt_move_right", "ctrl+windows+right", "alt+scroll_right"),
             ("Gather All Windows", "gather_all_windows", "alt_gather_windows", "ctrl+shift+g", "ctrl+alt+g"),
-            ("Toggle Taskbar", "toggle_taskbar", "alt_toggle_taskbar", "", "")
+            ("Toggle Taskbar", "toggle_taskbar", "alt_toggle_taskbar", "", ""),
+            ("Open ScreenDash", "open_settings", "alt_open_settings", "", "")
         ]
         
         # Construct exact order
@@ -619,19 +634,24 @@ class SettingsApp(ctk.CTk):
         for idx, (name, key1, key2, def1, def2) in enumerate(self.active_mapping):
             val1 = self.hotkeys.get(key1, "")
             if not val1: val1 = def1
-            en1 = self.enabled.get(key1, True)
+            default_en1 = False if key1 in ["open_settings", "alt_open_settings"] else True
+            en1 = self.enabled.get(key1, default_en1)
             
             val2 = self.hotkeys.get(key2, "")
             if not val2: val2 = def2
-            en2 = self.enabled.get(key2, True)
+            default_en2 = False if key2 in ["open_settings", "alt_open_settings"] else True
+            en2 = self.enabled.get(key2, default_en2)
             
             bg_color = "transparent" if idx % 2 == 0 else ("gray85", "gray24")
             
             def make_cb(i, d): return lambda i=i, d=d: self.move_row(i, d)
 
+            label_color = "#00A8E1" if name == "Open ScreenDash" else None
+
             entry = DualHotkeyEntry(
                 self.scroll_frame, tr(name), val1, en1, val2, en2, 
                 on_up=make_cb(idx, -1), on_down=make_cb(idx, 1),
+                label_color=label_color,
                 fg_color=bg_color, corner_radius=0
             )
             
@@ -665,11 +685,13 @@ class SettingsApp(ctk.CTk):
             
             val1 = self.hotkeys.get(key1, "")
             if not val1: val1 = def1
-            en1 = self.enabled.get(key1, True)
+            default_en1 = False if key1 in ["open_settings", "alt_open_settings"] else True
+            en1 = self.enabled.get(key1, default_en1)
             
             val2 = self.hotkeys.get(key2, "")
             if not val2: val2 = def2
-            en2 = self.enabled.get(key2, True)
+            default_en2 = False if key2 in ["open_settings", "alt_open_settings"] else True
+            en2 = self.enabled.get(key2, default_en2)
             
             frame.label.configure(text=tr(name))
             frame.mapping_keys = (key1, key2)

@@ -440,7 +440,9 @@ def exec_action(action_name):
         "right_mouse_click": right_mouse_click_action,
         "alt_right_mouse_click": right_mouse_click_action,
         "toggle_taskbar": toggle_taskbar_autohide,
-        "alt_toggle_taskbar": toggle_taskbar_autohide
+        "alt_toggle_taskbar": toggle_taskbar_autohide,
+        "open_settings": lambda: launch_settings(None, None),
+        "alt_open_settings": lambda: launch_settings(None, None)
     }
     if action_name in mapping:
         mapping[action_name]()
@@ -572,8 +574,19 @@ def create_image():
     return image
 
 def launch_settings(icon, item):
-    settings_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.py")
-    subprocess.Popen([sys.executable, settings_script], shell=True)
+    hwnd = user32.FindWindowW(None, "ScreenDash Settings")
+    if not hwnd:
+        hwnd = user32.FindWindowW(None, "Configuración de ScreenDash")
+        
+    if hwnd:
+        if user32.IsIconic(hwnd):
+            user32.ShowWindow(hwnd, SW_RESTORE)
+        # Using 0x0001 (SW_SHOWNORMAL) or SetForegroundWindow
+        user32.SetForegroundWindow(hwnd)
+    else:
+        settings_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.py")
+        subprocess.Popen([sys.executable, settings_script], shell=True)
+
 
 def main():
     global listener, tray_icon
